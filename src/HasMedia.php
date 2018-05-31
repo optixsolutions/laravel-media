@@ -1,6 +1,6 @@
 <?php
 
-namespace Optix\MediaManager;
+namespace Optix\Media;
 
 trait HasMedia
 {

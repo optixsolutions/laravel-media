@@ -1,5 +1,5 @@
 {
-    "name": "optix/media-manager",
+    "name": "optix/media",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Optix\\MediaManager\\": "src"
+            "Optix\\Media\\": "src"
         }
     }
 }

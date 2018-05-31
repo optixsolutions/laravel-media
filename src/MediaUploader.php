@@ -1,6 +1,6 @@
 <?php
 
-namespace Optix\MediaManager;
+namespace Optix\Media;
 
 use Illuminate\Http\UploadedFile;
 
@@ -30,8 +30,8 @@ class MediaUploader
 
         $fileName = $file->getClientOriginalName();
 
-        $this->setFileName($fileName);
         $this->setName(pathinfo($fileName, PATHINFO_FILENAME));
+        $this->setFileName($fileName);
 
         return $this;
     }
