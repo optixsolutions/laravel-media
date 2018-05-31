@@ -2,6 +2,8 @@
 
 namespace Optix\MediaManager;
 
+use Illuminate\Http\UploadedFile;
+
 class MediaUploader
 {
     protected $file;

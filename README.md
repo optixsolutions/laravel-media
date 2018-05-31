@@ -1,4 +1,4 @@
-# Laravel Mediable
+# Laravel Media Manager
 
 ```php
 $media = MediaUploader::fromFile($file)
