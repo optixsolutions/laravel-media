@@ -22,6 +22,7 @@ class CreateMediaTable extends Migration
             $table->unsignedInteger('media_id')->index();
             $table->unsignedInteger('mediable_id')->index();
             $table->string('mediable_type');
+            $table->string('collection');
 
             $table->foreign('media_id')
                   ->references('id')

@@ -39,7 +39,7 @@ trait HasMedia
         return $media->getUrl();
     }
 
-    public function attachMedia($media, $collection = null)
+    public function attachMedia($media, $collection, $conversions = [])
     {
         $attach = [];
 
@@ -50,18 +50,18 @@ trait HasMedia
                 'collection' => $collection
             ];
 
-            // Todo: Perform manipulations.
+            // PerformConversions::dispatch($id, $conversions);
         }
 
         $this->media()->attach($attach);
     }
 
-    public function syncMedia($media, $collection = null)
+    public function syncMedia($media, $collection)
     {
         // Todo
     }
 
-    public function detachMedia($collection = null)
+    public function detachMedia($collection)
     {
         // Todo
     }
