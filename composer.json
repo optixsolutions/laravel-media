@@ -8,7 +8,8 @@
         }
     ],
     "require": {
-        "laravel/framework": "^5.6"
+        "laravel/framework": "^5.6",
+        "intervention/image": "^2.4"
     },
     "autoload": {
         "psr-4": {

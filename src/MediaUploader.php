@@ -29,8 +29,9 @@ class MediaUploader
         $this->file = $file;
 
         $fileName = $file->getClientOriginalName();
+        $name = pathinfo($fileName, PATHINFO_FILENAME);
 
-        $this->setName(pathinfo($fileName, PATHINFO_FILENAME));
+        $this->setName($name);
         $this->setFileName($fileName);
 
         return $this;

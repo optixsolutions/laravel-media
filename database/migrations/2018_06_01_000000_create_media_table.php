@@ -17,10 +17,22 @@ class CreateMediaTable extends Migration
             $table->unsignedInteger('size');
             $table->timestamps();
         });
+
+        Schema::create('mediables', function (Blueprint $table) {
+            $table->unsignedInteger('media_id')->index();
+            $table->unsignedInteger('mediable_id')->index();
+            $table->string('mediable_type');
+
+            $table->foreign('media_id')
+                  ->references('id')
+                  ->on('media')
+                  ->onDelete('cascade');
+        });
     }
 
     public function down()
     {
+        Schema::dropIfExists('mediables');
         Schema::dropIfExists('media');
     }
 }
