@@ -19,7 +19,7 @@ trait HasMedia
         $media = $this->media;
 
         if ($collection) {
-            $media->wherePivot('collection', $collection);
+            $media->where('pivot.collection', $collection);
         }
 
         return $media;
@@ -46,10 +46,7 @@ trait HasMedia
         $ids = (array) $media;
 
         foreach ($ids as $id) {
-            $attach[$id] = [
-                'collection' => $collection
-            ];
-
+            $attach[$id] = ['collection' => $collection];
             // PerformConversions::dispatch($id, $conversions);
         }
 

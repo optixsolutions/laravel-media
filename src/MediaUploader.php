@@ -92,7 +92,7 @@ class MediaUploader
 
         $media->save();
 
-        $this->file->storeAs($media->id, $media->file_name, [
+        $this->file->storeAs("media/{$media->getKey()}", $media->file_name, [
             'disk' => $media->disk
         ]);
 

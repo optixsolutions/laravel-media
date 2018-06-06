@@ -16,8 +16,29 @@ class Media extends Model
         return Storage::disk($this->disk);
     }
 
-    public function getUrl()
+    public function getPath($conversion = null)
     {
-        $this->filesystem()->url("{$this->id}/{$this->file_name}");
+        $path = "media/{$this->getKey()}";
+
+        if ($conversion) {
+            return "{$path}/conversions/{$conversion}.{$this->extension}";
+        }
+
+        return "{$path}/{$this->file_name}";
+    }
+
+    public function getUrl($conversion = null)
+    {
+        return $this->filesystem()->url($this->getPath($conversion));
+    }
+
+    public function getRelativePath($conversion = null)
+    {
+        return $this->filesystem()->path($this->getPath($conversion));
+    }
+
+    public function getExtensionAttribute()
+    {
+        return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 }
