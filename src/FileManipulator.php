@@ -24,7 +24,7 @@ class FileManipulator
 
         $storage = Storage::disk($media->disk);
 
-        foreach ($conversions as $name => $conversion) {
+        foreach ($conversions as $name) {
             if (
                 $this->conversions->exists($name)
                 && ! $storage->exists($media->getDiskPath($name))
