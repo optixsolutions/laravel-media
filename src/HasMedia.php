@@ -2,6 +2,8 @@
 
 namespace Optix\Media;
 
+use App\Jobs\PerformConversions;
+
 trait HasMedia
 {
     public function media()
@@ -47,7 +49,7 @@ trait HasMedia
 
         foreach ($ids as $id) {
             $attach[$id] = ['collection' => $collection];
-            // PerformConversions::dispatch($id, $conversions);
+            PerformConversions::dispatch($id, $conversions);
         }
 
         $this->media()->attach($attach);
