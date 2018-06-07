@@ -2,7 +2,7 @@
 
 namespace Optix\Media;
 
-use App\Jobs\PerformConversions;
+use Optix\Media\Jobs\PerformConversions;
 
 trait HasMedia
 {

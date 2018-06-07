@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace Optix\Media\Jobs;
 
 use Optix\Media\Media;
 use Illuminate\Bus\Queueable;
