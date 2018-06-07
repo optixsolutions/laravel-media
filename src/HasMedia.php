@@ -8,7 +8,7 @@ trait HasMedia
 {
     public function media()
     {
-        return $this->morphToMany(Media::class)->withPivot('collection');
+        return $this->morphToMany(Media::class, 'mediable')->withPivot('collection');
     }
 
     public function hasMedia($collection = null)
