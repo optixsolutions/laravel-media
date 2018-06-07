@@ -11,34 +11,38 @@ class Media extends Model
         'name', 'file_name', 'disk', 'mime_type', 'size'
     ];
 
-    protected function filesystem()
+    public function getExtensionAttribute()
     {
-        return Storage::disk($this->disk);
-    }
-
-    public function getPath($conversion = null)
-    {
-        $path = "media/{$this->getKey()}";
-
-        if ($conversion) {
-            return "{$path}/conversions/{$conversion}.{$this->extension}";
-        }
-
-        return "{$path}/{$this->file_name}";
+        return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
     public function getUrl($conversion = null)
     {
-        return $this->filesystem()->url($this->getPath($conversion));
+        return $this->storage()->url(
+            $this->getDiskPath($conversion)
+        );
     }
 
-    public function getRelativePath($conversion = null)
+    public function getPath($conversion = null)
     {
-        return $this->filesystem()->path($this->getPath($conversion));
+        return $this->storage()->path(
+            $this->getDiskPath($conversion)
+        );
     }
 
-    public function getExtensionAttribute()
+    public function getDiskPath($conversion = null)
     {
-        return pathinfo($this->file_name, PATHINFO_EXTENSION);
+        $basePath = $this->getKey();
+
+        if ($conversion) {
+            return "{$basePath}/conversions/{$conversion}.{$this->extension}";
+        }
+
+        return "{$basePath}/{$this->file_name}";
+    }
+
+    protected function storage()
+    {
+        return Storage::disk($this->disk);
     }
 }

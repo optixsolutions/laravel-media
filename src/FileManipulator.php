@@ -2,33 +2,35 @@
 
 namespace Optix\Media;
 
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
 class FileManipulator
 {
-    protected $conversion;
+    protected $conversions;
 
-    public function __construct(ConversionManager $conversion)
+    public function __construct(ConversionManager $conversions)
     {
-        $this->conversion = $conversion;
+        $this->conversions = $conversions;
     }
 
-    public function manipulate(Media $media, array $conversionNames)
+    public function manipulate(Media $media, array $conversions)
     {
+        if (empty($conversions)) {
+            return;
+        }
+
         $image = Image::make($media->getPath());
 
-        // Todo: Check if extension is convertable.
-        // Todo: Check if conversion already exists.
+        $storage = Storage::disk($media->disk);
 
-        foreach ($conversionNames as $name) {
-            if ($this->conversion->exists($name)) {
-                $conversion = $this->conversion->get($name);
-
-                $convertedImage = $conversion($image);
-
-                $convertedImage->save(Storage::disk($media->disk)->path(
-                    "{$media->id}/conversions/{$name}.{$media->extension}"
-                ));
+        foreach ($conversions as $name => $conversion) {
+            if (
+                $this->conversions->exists($name)
+                && ! $storage->exists($media->getDiskPath($name))
+            ) {
+                $convertedImage = $this->conversions->get($name)($image);
+                $storage->put($media->getDiskPath($name), $convertedImage->stream());
             }
         }
     }
