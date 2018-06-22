@@ -13,10 +13,6 @@ class ConversionManager
 
     public function get($name)
     {
-        if (! $this->exists($name)) {
-            // throw Exception
-        }
-
         return $this->conversions[$name];
     }
 

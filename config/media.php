@@ -2,6 +2,8 @@
 
 return [
 
-    'disk' => 'public'
+    'disk' => 'public',
+
+    'model' => Optix\Media\Media::class,
 
 ];

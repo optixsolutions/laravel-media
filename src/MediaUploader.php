@@ -80,7 +80,8 @@ class MediaUploader
 
     public function upload()
     {
-        $media = new Media();
+        $model = config('media.model');
+        $media = new $model();
 
         $media->name = $this->name;
         $media->file_name = $this->fileName;
