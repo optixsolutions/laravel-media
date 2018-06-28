@@ -14,7 +14,10 @@ class MediaServiceProvider extends ServiceProvider
                 'migrations/' . date('Y_m_d_His', time()) . '_create_media_table.php'
             )
         ], 'migrations');
+    }
 
+    public function register()
+    {
         $this->app->singleton(ConversionManager::class);
     }
 }
