@@ -97,6 +97,6 @@ class MediaUploader
             'disk' => $media->disk
         ]);
 
-        return $media;
+        return $media->fresh();
     }
 }
