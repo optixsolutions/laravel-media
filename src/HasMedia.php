@@ -32,13 +32,13 @@ trait HasMedia
         return $this->getMedia($collection)->first();
     }
 
-    public function firstMediaUrl($collection = null)
+    public function firstMediaUrl($collection = null, $conversion = null)
     {
         if (! $media = $this->firstMedia($collection)) {
             return null;
         }
 
-        return $media->getUrl();
+        return $media->getUrl($conversion);
     }
 
     public function attachMedia($media, $collection, $conversions = [])
