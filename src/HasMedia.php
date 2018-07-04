@@ -21,7 +21,7 @@ trait HasMedia
         $media = $this->media;
 
         if ($collection) {
-            $media->where('pivot.collection', $collection);
+            $media = $media->where('pivot.collection', $collection);
         }
 
         return $media;
