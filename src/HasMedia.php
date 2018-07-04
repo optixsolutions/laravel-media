@@ -57,11 +57,18 @@ trait HasMedia
 
     public function syncMedia($media, $collection)
     {
-        // Todo
+        $this->detachMedia([], $collection);
+        $this->attachMedia($media, $collection);
     }
 
-    public function detachMedia($collection)
+    public function detachMedia($media = [], $collection = null)
     {
-        // Todo
+        $query = $this->media();
+
+        if ($collection) {
+            $query->wherePivot('collection', $collection);
+        }
+
+        $query->detach($media);
     }
 }

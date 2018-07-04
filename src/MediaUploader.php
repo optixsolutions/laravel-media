@@ -85,7 +85,7 @@ class MediaUploader
 
         $media->name = $this->name;
         $media->file_name = $this->fileName;
-        $media->disk = 'public'; // Todo: Pull from config.
+        $media->disk = config('media.disk');
         $media->mime_type = $this->file->getMimeType();
         $media->size = $this->file->getSize();
 
@@ -93,7 +93,7 @@ class MediaUploader
 
         $media->save();
 
-        $this->file->storeAs($media->getKey(), $media->file_name, [
+        $this->file->storeAs($media->id, $media->file_name, [
             'disk' => $media->disk
         ]);
 
