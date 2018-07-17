@@ -55,13 +55,13 @@ trait HasMedia
         $this->media()->attach($attach);
     }
 
-    public function syncMedia($media, $collection)
+    public function syncMedia($media, $collection, $conversions = [])
     {
-        $this->detachMedia([], $collection);
-        $this->attachMedia($media, $collection);
+        $this->detachMedia(null, $collection);
+        $this->attachMedia($media, $collection, $conversions);
     }
 
-    public function detachMedia($media = [], $collection = null)
+    public function detachMedia($media = null, $collection = null)
     {
         $query = $this->media();
 
