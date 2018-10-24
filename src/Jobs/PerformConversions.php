@@ -2,8 +2,8 @@
 
 namespace Optix\Media\Jobs;
 
-use Optix\Media\Media;
 use Illuminate\Bus\Queueable;
+use Optix\Media\Models\Media;
 use Optix\Media\ImageManipulator;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;

@@ -1,16 +1,16 @@
 <?php
 
-namespace Optix\Media\Providers;
+namespace Optix\Media;
 
-use Optix\Media\ConversionManager;
 use Illuminate\Support\ServiceProvider;
+use Optix\Media\Conversions\ConversionManager;
 
 class MediaServiceProvider extends ServiceProvider
 {
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../../database/migrations/create_media_table.php.stub' => database_path(
+            __DIR__ . '/../database/migrations/create_media_table.php.stub' => database_path(
                 'migrations/' . date('Y_m_d_His', time()) . '_create_media_table.php'
             )
         ], 'migrations');

@@ -1,6 +1,6 @@
 <?php
 
-namespace Optix\Media;
+namespace Optix\Media\Conversions;
 
 class ConversionManager
 {

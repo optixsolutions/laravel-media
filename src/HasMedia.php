@@ -2,13 +2,13 @@
 
 namespace Optix\Media;
 
-use MediaAttacher;
-
 trait HasMedia
 {
     public function media()
     {
-        return $this->morphToMany(config('media.model'), 'mediable')->withPivot('collection');
+        return $this->morphToMany(
+            config('media.model'), 'mediable'
+        )->withPivot('collection');
     }
 
     public function hasMedia($collection = null)
@@ -43,6 +43,12 @@ trait HasMedia
 
     public function attachMedia($media)
     {
+        $model = config('media.model');
+
+        if (! $media instanceof $model) {
+            $media = $model::find($media);
+        }
+
         return app(MediaAttacher::class)
             ->setSubject($this)
             ->setMedia($media);
@@ -51,12 +57,5 @@ trait HasMedia
     public function detachMedia($media = null)
     {
         $this->media()->detach($media);
-    }
-
-    public function detachMediaInCollection($collection)
-    {
-        $this->media()->wherePivot(
-            'collection', $collection
-        )->detach();
     }
 }

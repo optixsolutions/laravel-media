@@ -2,8 +2,10 @@
 
 namespace Optix\Media;
 
+use Optix\Media\Models\Media;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use Optix\Media\Conversions\ConversionManager;
 
 class ImageManipulator
 {

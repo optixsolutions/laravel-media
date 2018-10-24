@@ -1,6 +1,6 @@
 <?php
 
-namespace Optix\Media;
+namespace Optix\Media\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;

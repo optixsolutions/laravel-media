@@ -1,7 +1,8 @@
 <?php
 
-use Optix\Media\Media;
-use Optix\Media\HasMedia;
+namespace Optix\Media;
+
+use Optix\Media\Models\Media;
 use Optix\Media\Jobs\PerformConversions;
 
 class MediaAttacher
@@ -24,11 +25,6 @@ class MediaAttacher
         $this->media = $media;
 
         return $this;
-    }
-
-    public function performConversion($conversion)
-    {
-        return $this->performConversions([$conversion]);
     }
 
     public function performConversions(array $conversions)
