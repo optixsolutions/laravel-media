@@ -4,7 +4,7 @@ namespace Optix\Media\Jobs;
 
 use Optix\Media\Media;
 use Illuminate\Bus\Queueable;
-use Optix\Media\FileManipulator;
+use Optix\Media\ImageManipulator;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,19 +14,19 @@ class PerformConversions implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $mediaId;
+    protected $media;
 
     protected $conversions;
 
     /**
      * Create a new job instance.
      *
-     * @param  int  $mediaId
+     * @param  Media  $media
      * @param  array  $conversions
      */
-    public function __construct($mediaId, array $conversions)
+    public function __construct(Media $media, array $conversions)
     {
-        $this->mediaId = $mediaId;
+        $this->media = $media;
 
         $this->conversions = $conversions;
     }
@@ -34,15 +34,13 @@ class PerformConversions implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param  FileManipulator  $manipulator
+     * @param  ImageManipulator  $manipulator
      * @return void
      */
-    public function handle(FileManipulator $manipulator)
+    public function handle(ImageManipulator $manipulator)
     {
-        $media = Media::find($this->mediaId);
-
-        if ($media) {
-            $manipulator->manipulate($media, $this->conversions);
-        }
+        $manipulator->manipulate(
+            $this->media, $this->conversions
+        );
     }
 }

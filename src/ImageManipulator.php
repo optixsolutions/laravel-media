@@ -5,7 +5,7 @@ namespace Optix\Media;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
-class FileManipulator
+class ImageManipulator
 {
     protected $conversions;
 

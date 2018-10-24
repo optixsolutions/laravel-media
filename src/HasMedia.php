@@ -2,7 +2,7 @@
 
 namespace Optix\Media;
 
-use Optix\Media\Jobs\PerformConversions;
+use MediaAttacher;
 
 trait HasMedia
 {
@@ -41,34 +41,22 @@ trait HasMedia
         return $media->getUrl($conversion);
     }
 
-    public function attachMedia($media, $collection, $conversions = [])
+    public function attachMedia($media)
     {
-        $attach = [];
-
-        $ids = (array) $media;
-
-        foreach ($ids as $id) {
-            $attach[$id] = ['collection' => $collection];
-            PerformConversions::dispatch($id, $conversions);
-        }
-
-        $this->media()->attach($attach);
+        return app(MediaAttacher::class)
+            ->setSubject($this)
+            ->setMedia($media);
     }
 
-    public function syncMedia($media, $collection, $conversions = [])
+    public function detachMedia($media = null)
     {
-        $this->detachMedia(null, $collection);
-        $this->attachMedia($media, $collection, $conversions);
+        $this->media()->detach($media);
     }
 
-    public function detachMedia($media = null, $collection = null)
+    public function detachMediaInCollection($collection)
     {
-        $query = $this->media();
-
-        if ($collection) {
-            $query->wherePivot('collection', $collection);
-        }
-
-        $query->detach($media);
+        $this->media()->wherePivot(
+            'collection', $collection
+        )->detach();
     }
 }
