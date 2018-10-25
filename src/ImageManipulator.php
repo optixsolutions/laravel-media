@@ -22,17 +22,23 @@ class ImageManipulator
             return;
         }
 
-        $image = Image::make($media->getPath());
+        $image = Image::make($media->getFullPath());
 
         $storage = Storage::disk($media->disk);
 
-        foreach ($conversions as $name) {
+        foreach ($conversions as $conversionName) {
             if (
-                $this->conversions->exists($name)
-                && ! $storage->exists($media->getDiskPath($name))
+                $this->conversions->exists($conversionName)
+                && ! $storage->exists($media->getPath($conversionName))
             ) {
-                $convertedImage = $this->conversions->get($name)($image);
-                $storage->put($media->getDiskPath($name), $convertedImage->stream());
+                $conversion = $this->conversions->get($conversionName);
+
+                $convertedImage = $conversion($image);
+
+                $storage->put(
+                    $media->getPath($conversionName),
+                    $convertedImage->stream()
+                );
             }
         }
     }
