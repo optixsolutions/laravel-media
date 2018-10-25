@@ -28,16 +28,25 @@ class MediaAttacher
         return $this;
     }
 
+    public function performConversion(string $conversion)
+    {
+        return $this->performConversions([ $conversion ]);
+    }
+
     public function performConversions(array $conversions)
     {
-        $this->conversions = $conversions;
+        $this->conversions = (array) $conversions;
 
         return $this;
     }
 
-    public function toCollection($collection)
+    public function toMediaCollection($collection)
     {
-        PerformConversions::dispatch($this->media, $this->conversions);
+        if (! empty($this->conversions)) {
+            PerformConversions::dispatch(
+                $this->media, $this->conversions
+            );
+        }
 
         $this->subject->media()->attach($this->media, [
             'collection' => $collection
