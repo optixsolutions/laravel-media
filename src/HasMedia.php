@@ -2,6 +2,8 @@
 
 namespace Optix\Media;
 
+use Optix\Media\MediaAttacher\MediaAttacherFactory;
+
 trait HasMedia
 {
     public function media()
@@ -43,15 +45,12 @@ trait HasMedia
 
     public function attachMedia($media)
     {
-        $model = config('media.model');
+        return MediaAttacherFactory::create($this, $media);
+    }
 
-        if (! $media instanceof $model) {
-            $media = $model::find($media);
-        }
-
-        return app(MediaAttacher::class)
-            ->setSubject($this)
-            ->setMedia($media);
+    public function attachMultipleMedia($media)
+    {
+        return MediaAttacherFactory::createMultiple($this, $media);
     }
 
     public function detachMedia($media = null)

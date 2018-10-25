@@ -1,7 +1,8 @@
 <?php
 
-namespace Optix\Media;
+namespace Optix\Media\MediaAttacher;
 
+use Optix\Media\HasMedia;
 use Optix\Media\Models\Media;
 use Optix\Media\Jobs\PerformConversions;
 

@@ -4,6 +4,7 @@ namespace Optix\Media\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Optix\Media\PathGenerator\PathGenerator;
 
 class Media extends Model
 {
@@ -18,27 +19,23 @@ class Media extends Model
 
     public function getUrl($conversion = null)
     {
-        return $this->storage()->url(
-            $this->getDiskPath($conversion)
-        );
+        return $this->storage()->url($this->getPath($conversion));
+    }
+
+    public function getFullPath($conversion = null)
+    {
+        return $this->storage()->path($this->getPath($conversion));
     }
 
     public function getPath($conversion = null)
     {
-        return $this->storage()->path(
-            $this->getDiskPath($conversion)
-        );
-    }
-
-    public function getDiskPath($conversion = null)
-    {
-        $basePath = $this->getKey();
+        $pathGenerator = new PathGenerator();
 
         if ($conversion) {
-            return "{$basePath}/conversions/{$conversion}.{$this->extension}";
+            return $pathGenerator->getConversionPath($this, $conversion);
         }
 
-        return "{$basePath}/{$this->file_name}";
+        return $pathGenerator->getPath($this);
     }
 
     protected function storage()

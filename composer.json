@@ -15,5 +15,12 @@
         "psr-4": {
             "Optix\\Media\\": "src"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Optix\\Media\\MediaServiceProvider"
+            ]
+        }
     }
 }

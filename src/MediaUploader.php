@@ -3,6 +3,8 @@
 namespace Optix\Media;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Optix\Media\PathGenerator\PathGenerator;
 
 class MediaUploader
 {
@@ -93,9 +95,11 @@ class MediaUploader
 
         $media->save();
 
-        $this->file->storeAs($media->id, $media->file_name, [
-            'disk' => $media->disk
-        ]);
+        $pathGenerator = new PathGenerator();
+
+        Storage::disk($media->disk)->putFileAs(
+            $pathGenerator->getPath($media)
+        );
 
         return $media->fresh();
     }
