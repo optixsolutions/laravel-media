@@ -29,14 +29,14 @@ trait HasMedia
         return $media;
     }
 
-    public function firstMedia($collection = null)
+    public function getFirstMedia($collection = null)
     {
         return $this->getMedia($collection)->first();
     }
 
-    public function firstMediaUrl($collection = null, $conversion = null)
+    public function getFirstMediaUrl($collection = null, $conversion = null)
     {
-        if (! $media = $this->firstMedia($collection)) {
+        if (! $media = $this->getFirstMedia($collection)) {
             return null;
         }
 
