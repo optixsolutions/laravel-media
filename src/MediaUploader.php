@@ -97,8 +97,8 @@ class MediaUploader
 
         $pathGenerator = new PathGenerator();
 
-        Storage::disk($media->disk)->putFileAs(
-            $pathGenerator->getPath($media)
+        Storage::disk($media->disk)->put(
+            $pathGenerator->getPath($media), $this->file
         );
 
         return $media->fresh();

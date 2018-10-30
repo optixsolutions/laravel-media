@@ -2,7 +2,6 @@
 
 namespace Optix\Media\MediaAttacher;
 
-use Optix\Media\HasMedia;
 use Optix\Media\Models\Media;
 use Optix\Media\Jobs\PerformConversions;
 
@@ -14,7 +13,7 @@ class MediaAttacher
 
     protected $conversions = [];
 
-    public function setSubject(HasMedia $subject)
+    public function setSubject($subject)
     {
         $this->subject = $subject;
 

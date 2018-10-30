@@ -2,16 +2,14 @@
 
 namespace Optix\Media\MediaAttacher;
 
-use Optix\Media\HasMedia;
+use Optix\Media\Models\Media;
 
 class MediaAttacherFactory
 {
-    public static function create(HasMedia $subject, $media)
+    public static function create($subject, $media)
     {
-        $model = config('media.model');
-
-        if (! $media instanceof $model) {
-            $media = $model::find($media);
+        if (! $media instanceof Media) {
+            $media = Media::find($media);
         }
 
         return app(MediaAttacher::class)
@@ -19,7 +17,7 @@ class MediaAttacherFactory
             ->setMedia($media);
     }
 
-    public static function createMultiple(HasMedia $subject, array $media)
+    public static function createMultiple($subject, array $media)
     {
         return collect($media)->map(function ($media) use ($subject) {
             return static::create($subject, $media);
