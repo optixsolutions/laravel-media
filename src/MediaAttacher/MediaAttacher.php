@@ -34,7 +34,7 @@ class MediaAttacher
 
     public function performConversions(array $conversions)
     {
-        $this->conversions = (array) $conversions;
+        $this->conversions = $conversions;
 
         return $this;
     }
