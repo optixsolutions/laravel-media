@@ -2,7 +2,9 @@
 
 namespace Optix\Media\MediaAttacher;
 
+use Exception;
 use Optix\Media\Models\Media;
+use Illuminate\Database\Eloquent\Model;
 use Optix\Media\Jobs\PerformConversions;
 
 class MediaAttacher
@@ -13,18 +15,29 @@ class MediaAttacher
 
     protected $conversions = [];
 
-    public function setSubject($subject)
+    public function setSubject(Model $subject)
     {
         $this->subject = $subject;
 
         return $this;
     }
 
-    public function setMedia(Media $media)
+    public function setMedia($media)
     {
-        $this->media = $media;
+        if ($media instanceof Media) {
+            $this->media = $media;
 
-        return $this;
+            return $this;
+        }
+
+        if ($media = Media::find($media)) {
+            $this->media = $media;
+
+            return $this;
+        }
+
+        // Todo: Better exception message...
+        throw new Exception('Invalid media parameter.');
     }
 
     public function performConversion(string $conversion)

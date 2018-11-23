@@ -2,6 +2,7 @@
 
 namespace Optix\Media;
 
+use Exception;
 use Optix\Media\Models\Media;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
@@ -24,18 +25,19 @@ class ImageManipulator
 
         $image = Image::make($media->getFullPath());
 
-        $storage = Storage::disk($media->disk);
+        $filesystem = Storage::disk($media->disk);
 
         foreach ($conversions as $conversionName) {
-            if (
-                $this->conversions->exists($conversionName)
-                && ! $storage->exists($media->getPath($conversionName))
-            ) {
+            if (! $this->conversions->exists($conversionName)) {
+                throw new Exception("Conversion `{$conversionName}` does not exist.");
+            }
+
+            if (! $filesystem->exists($media->getPath($conversionName))) {
                 $conversion = $this->conversions->get($conversionName);
 
                 $convertedImage = $conversion($image);
 
-                $storage->put(
+                $filesystem->put(
                     $media->getPath($conversionName),
                     $convertedImage->stream()
                 );
