@@ -5,19 +5,18 @@ namespace Optix\Media;
 use Exception;
 use Optix\Media\Models\Media;
 use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Storage;
 use Optix\Media\Conversions\ConversionManager;
 
 class ImageManipulator
 {
-    protected $conversions;
+    protected $conversionManager;
 
-    public function __construct(ConversionManager $conversions)
+    public function __construct(ConversionManager $conversionManager)
     {
-        $this->conversions = $conversions;
+        $this->conversionManager = $conversionManager;
     }
 
-    public function manipulate(Media $media, array $conversions)
+    public function manipulate(Media $media, array $conversions, $onlyIfMissing = false)
     {
         if (empty($conversions)) {
             return;
@@ -25,23 +24,26 @@ class ImageManipulator
 
         $image = Image::make($media->getFullPath());
 
-        $filesystem = Storage::disk($media->disk);
-
-        foreach ($conversions as $conversionName) {
-            if (! $this->conversions->exists($conversionName)) {
-                throw new Exception("Conversion `{$conversionName}` does not exist.");
-            }
-
-            if (! $filesystem->exists($media->getPath($conversionName))) {
-                $conversion = $this->conversions->get($conversionName);
-
-                $convertedImage = $conversion($image);
-
-                $filesystem->put(
-                    $media->getPath($conversionName),
-                    $convertedImage->stream()
+        collect($conversions)
+            ->reject(function ($conversion) use ($media, $onlyIfMissing) {
+                return (
+                    $onlyIfMissing
+                    && $media->filesystem()->exists($media->getPath($conversion))
                 );
-            }
-        }
+            })
+            ->each(function ($conversion) use ($media, $image) {
+                if (! $this->conversionManager->exists($conversion)) {
+                    throw new Exception("Conversion `{$conversion}` does not exist.");
+                }
+
+                $manipulatedImage = $this->conversionManager->perform(
+                    $conversion, $image
+                );
+
+                $media->filesystem()->put(
+                    $media->getPath($conversion),
+                    $manipulatedImage->stream()
+                );
+            });
     }
 }

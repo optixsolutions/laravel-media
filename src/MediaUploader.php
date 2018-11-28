@@ -2,9 +2,8 @@
 
 namespace Optix\Media;
 
+use Optix\Media\Models\Media;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Optix\Media\PathGenerator\PathGenerator;
 
 class MediaUploader
 {
@@ -82,12 +81,11 @@ class MediaUploader
 
     public function upload()
     {
-        $model = config('media.model');
-        $media = new $model();
+        $media = new Media();
 
         $media->name = $this->name;
         $media->file_name = $this->fileName;
-        $media->disk = config('media.disk');
+        $media->disk = config('filesystems.default');
         $media->mime_type = $this->file->getMimeType();
         $media->size = $this->file->getSize();
 
@@ -95,15 +93,8 @@ class MediaUploader
 
         $media->save();
 
-        $pathGenerator = new PathGenerator();
-
-        $directory = pathinfo(
-            $pathGenerator->getPath($media),
-            PATHINFO_DIRNAME
-        );
-
-        Storage::disk($media->disk)->putFileAs(
-            $directory, $this->file, $media->file_name
+        $media->filesystem()->put(
+            $media->getPath(), $this->file
         );
 
         return $media->fresh();

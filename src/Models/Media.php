@@ -17,28 +17,28 @@ class Media extends Model
         return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
-    public function getUrl($conversion = null)
+    public function getUrl(string $conversion = null)
     {
-        return $this->storage()->url($this->getPath($conversion));
+        return $this->filesystem()->url($this->getPath($conversion));
     }
 
-    public function getFullPath($conversion = null)
+    public function getFullPath(string $conversion = null)
     {
-        return $this->storage()->path($this->getPath($conversion));
+        return $this->filesystem()->path($this->getPath($conversion));
     }
 
-    public function getPath($conversion = null)
+    public function getPath(string $conversion = null)
     {
-        $pathGenerator = new PathGenerator();
+        $path = $this->getKey();
 
         if ($conversion) {
-            return $pathGenerator->getConversionPath($this, $conversion);
+            $path .= '/conversions/' . $conversion;
         }
 
-        return $pathGenerator->getPath($this);
+        return $path . '/' . $this->file_name;
     }
 
-    protected function storage()
+    public function filesystem()
     {
         return Storage::disk($this->disk);
     }

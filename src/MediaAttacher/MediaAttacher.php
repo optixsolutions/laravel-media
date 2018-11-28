@@ -36,7 +36,6 @@ class MediaAttacher
             return $this;
         }
 
-        // Todo: Better exception message...
         throw new Exception('Invalid media parameter.');
     }
 

@@ -10,7 +10,7 @@ $media = MediaUploader::fromFile($file)->upload();
 
 ```php
 $post = Post::create($request->all());
-$post->attachMedia($mediaId, 'image');
+$post->attachMedia($mediaId)->toMediaCollection('image');
 $post->getMedia('image')->first()->getUrl();
 ```
 
@@ -21,7 +21,10 @@ Conversion::register('thumb', function (Image $image) {
 ```
 
 ```php
-$post->attachMedia($mediaId, 'image', ['thumb']);
+$post->attachMedia($mediaId)
+     ->performConversion('thumb')
+     ->toMediaCollection('thumb');
+
 $post->getMedia('image')->first()->getUrl('thumb');
 ```
 
