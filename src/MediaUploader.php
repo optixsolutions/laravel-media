@@ -95,8 +95,10 @@ class MediaUploader
 
         $media->save();
 
-        $media->filesystem()->put(
-            $media->getPath(), $this->file
+        $media->filesystem()->putFileAs(
+            pathinfo($media->getPath(), PATHINFO_DIRNAME),
+            $this->file,
+            $media->file_name
         );
 
         return $media->fresh();
