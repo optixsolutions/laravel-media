@@ -2,7 +2,6 @@
 
 namespace Optix\Media;
 
-use Exception;
 use Optix\Media\Models\Media;
 use Intervention\Image\Facades\Image;
 use Optix\Media\Conversions\ConversionManager;
@@ -32,10 +31,6 @@ class ImageManipulator
                 );
             })
             ->each(function ($conversion) use ($media, $image) {
-                if (! $this->conversionManager->exists($conversion)) {
-                    throw new Exception("Conversion `{$conversion}` does not exist.");
-                }
-
                 $manipulatedImage = $this->conversionManager->perform(
                     $conversion, $image
                 );

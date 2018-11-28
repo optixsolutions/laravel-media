@@ -2,6 +2,7 @@
 
 namespace Optix\Media\Conversions;
 
+use Exception;
 use Intervention\Image\Image;
 
 class ConversionManager
@@ -15,6 +16,10 @@ class ConversionManager
 
     public function perform($name, Image $image)
     {
+        if (! $this->exists($name)) {
+            throw new Exception("Conversion `{$name}` does not exist.");
+        }
+
         $conversion = $this->conversions[$name];
 
         return $conversion($image);
