@@ -11,6 +11,10 @@ class ConversionManager
 
     public function register($name, callable $conversion)
     {
+        if ($this->exists($name)) {
+            throw new Exception("Conversion `{$name}` already exists.");
+        }
+
         $this->conversions[$name] = $conversion;
     }
 

@@ -2,14 +2,13 @@
 
 namespace Optix\Media;
 
-use Optix\Media\Models\Media;
 use Optix\Media\MediaAttacher\MediaAttacherFactory;
 
 trait HasMedia
 {
     public function media()
     {
-        return $this->morphToMany(Media::class)
+        return $this->morphToMany(config('media.model'))
                     ->withPivot('collection');
     }
 

@@ -24,13 +24,15 @@ class MediaAttacher
 
     public function setMedia($media)
     {
-        if ($media instanceof Media) {
+        $model = config('media.model');
+
+        if ($media instanceof $model) {
             $this->media = $media;
 
             return $this;
         }
 
-        if ($media = Media::find($media)) {
+        if ($media = $model::find($media)) {
             $this->media = $media;
 
             return $this;

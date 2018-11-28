@@ -81,11 +81,13 @@ class MediaUploader
 
     public function upload()
     {
-        $media = new Media();
+        $model = config('media.model');
+
+        $media = new $model();
 
         $media->name = $this->name;
         $media->file_name = $this->fileName;
-        $media->disk = config('filesystems.default');
+        $media->disk = config('media.disk');
         $media->mime_type = $this->file->getMimeType();
         $media->size = $this->file->getSize();
 
