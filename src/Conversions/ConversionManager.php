@@ -2,6 +2,8 @@
 
 namespace Optix\Media\Conversions;
 
+use Intervention\Image\Image;
+
 class ConversionManager
 {
     protected $conversions = [];
@@ -11,9 +13,11 @@ class ConversionManager
         $this->conversions[$name] = $conversion;
     }
 
-    public function get($name)
+    public function perform($name, Image $image)
     {
-        return $this->conversions[$name];
+        $conversion = $this->conversions[$name];
+
+        return $conversion($image);
     }
 
     public function exists($name)
