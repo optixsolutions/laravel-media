@@ -2,58 +2,52 @@
 
 namespace Optix\Media;
 
-use Optix\Media\MediaAttacher\MediaAttacherFactory;
-
 trait HasMedia
 {
     public function media()
     {
         return $this->morphToMany(config('media.model'), 'mediable')
-                    ->withPivot('collection');
+                    ->withPivot('group');
     }
 
-    public function hasMedia($collection = null)
+    public function hasMedia(string $group = 'default')
     {
-        return $this->getMedia($collection)->isNotEmpty();
+        return $this->getMedia($group)->isNotEmpty();
     }
 
-    public function getMedia($collection = null)
+    public function getMedia(string $group = 'default')
     {
-        $media = $this->media;
-
-        if ($collection) {
-            $media = $media->where('pivot.collection', $collection);
-        }
-
-        return $media;
+        return $this->media->where('pivot.group', $group);
     }
 
-    public function getFirstMedia($collection = null)
+    public function getFirstMedia(string $group = 'default')
     {
-        return $this->getMedia($collection)->first();
+        return $this->getMedia($group)->first();
     }
 
-    public function getFirstMediaUrl($collection = null, $conversion = null)
+    public function getFirstMediaUrl(string $group = 'default', string $conversion = '')
     {
-        if (! $media = $this->getFirstMedia($collection)) {
-            return null;
+        if (! $media = $this->getFirstMedia($group)) {
+            return '';
         }
 
         return $media->getUrl($conversion);
     }
 
-    public function attachMedia($media)
+    public function attachMedia($media, string $group = 'default')
     {
-        return MediaAttacherFactory::create($this, $media);
-    }
-
-    public function attachMultipleMedia($media)
-    {
-        return MediaAttacherFactory::createMultiple($this, $media);
+        $this->media()->attach($media, [
+            'group' => $group
+        ]);
     }
 
     public function detachMedia($media = null)
     {
         $this->media()->detach($media);
+    }
+
+    public function clearMediaGroup(string $group = 'default')
+    {
+        $this->media()->wherePivot('group', $group)->detach();
     }
 }

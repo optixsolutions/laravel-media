@@ -1,7 +1,8 @@
 <?php
 
-namespace Optix\Media\Conversions;
+namespace Optix\Media\Facades;
 
+use Optix\Media\ConversionManager;
 use Illuminate\Support\Facades\Facade;
 
 class Conversion extends Facade

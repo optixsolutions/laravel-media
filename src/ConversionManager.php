@@ -1,15 +1,19 @@
 <?php
 
-namespace Optix\Media\Conversions;
+namespace Optix\Media;
 
 use Exception;
-use Intervention\Image\Image;
 
 class ConversionManager
 {
     protected $conversions = [];
 
-    public function register($name, callable $conversion)
+    public function all()
+    {
+        return $this->conversions;
+    }
+
+    public function register(string $name, callable $conversion)
     {
         if ($this->exists($name)) {
             throw new Exception("Conversion `{$name}` already exists.");
@@ -18,18 +22,16 @@ class ConversionManager
         $this->conversions[$name] = $conversion;
     }
 
-    public function perform($name, Image $image)
+    public function get(string $name)
     {
         if (! $this->exists($name)) {
             throw new Exception("Conversion `{$name}` does not exist.");
         }
 
-        $conversion = $this->conversions[$name];
-
-        return $conversion($image);
+        return $this->conversions[$name];
     }
 
-    public function exists($name)
+    public function exists(string $name)
     {
         return isset($this->conversions[$name]);
     }
