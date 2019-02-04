@@ -2,7 +2,7 @@
 
 namespace Optix\Media;
 
-use Exception;
+use Optix\Media\Exceptions\InvalidConversion;
 
 class ConversionManager
 {
@@ -15,17 +15,13 @@ class ConversionManager
 
     public function register(string $name, callable $conversion)
     {
-        if ($this->exists($name)) {
-            throw new Exception("Conversion `{$name}` already exists.");
-        }
-
         $this->conversions[$name] = $conversion;
     }
 
     public function get(string $name)
     {
         if (! $this->exists($name)) {
-            throw new Exception("Conversion `{$name}` does not exist.");
+            throw InvalidConversion::doesNotExist($name);
         }
 
         return $this->conversions[$name];

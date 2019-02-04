@@ -17,17 +17,17 @@ class Media extends Model
         return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
-    public function getUrl(string $conversion = null)
+    public function getUrl(string $conversion = '')
     {
         return $this->filesystem()->url($this->getPath($conversion));
     }
 
-    public function getFullPath(string $conversion = null)
+    public function getFullPath(string $conversion = '')
     {
         return $this->filesystem()->path($this->getPath($conversion));
     }
 
-    public function getPath(string $conversion = null)
+    public function getPath(string $conversion = '')
     {
         $path = $this->getKey();
 

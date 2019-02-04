@@ -2,8 +2,14 @@
 
 namespace Optix\Media;
 
+use Illuminate\Database\Eloquent\Model;
+use Optix\Media\Jobs\PerformConversions;
+use Illuminate\Database\Eloquent\Collection;
+
 trait HasMedia
 {
+    protected $mediaGroups = [];
+
     public function media()
     {
         return $this->morphToMany(config('media.model'), 'mediable')
@@ -36,9 +42,58 @@ trait HasMedia
 
     public function attachMedia($media, string $group = 'default')
     {
-        $this->media()->attach($media, [
+        $this->registerMediaGroups();
+
+        $ids = $this->parseMediaIds($media);
+
+        if ($mediaGroup = $this->getMediaGroup($group)) {
+            $model = config('media.model');
+            $media = $model::findMany($ids);
+
+            $media->each(function ($media) use ($mediaGroup) {
+                if ($mediaGroup->hasConversions()) {
+                    PerformConversions::dispatch(
+                        $media, $mediaGroup->getConversions()
+                    );
+                }
+            });
+        }
+
+        $this->media()->attach($ids, [
             'group' => $group
         ]);
+    }
+
+    protected function parseMediaIds($media)
+    {
+        if ($media instanceof Collection) {
+            return $media->modelKeys();
+        }
+
+        if ($media instanceof Model) {
+            return [$media->getKey()];
+        }
+
+        return (array) $media;
+    }
+
+    public function registerMediaGroups()
+    {
+        //
+    }
+
+    public function addMediaGroup(string $name)
+    {
+        $group = new MediaGroup($name);
+
+        $this->mediaGroups[$name] = $group;
+
+        return $group;
+    }
+
+    public function getMediaGroup(string $name)
+    {
+        return $this->mediaGroups[$name] ?? null;
     }
 
     public function detachMedia($media = null)
