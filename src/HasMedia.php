@@ -2,7 +2,7 @@
 
 namespace Optix\Media;
 
-use Illuminate\Database\Eloquent\Model;
+use Optix\Media\Models\Media;
 use Optix\Media\Jobs\PerformConversions;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -48,15 +48,15 @@ trait HasMedia
 
         if ($mediaGroup = $this->getMediaGroup($group)) {
             $model = config('media.model');
-            $media = $model::findMany($ids);
 
-            $media->each(function ($media) use ($mediaGroup) {
-                if ($mediaGroup->hasConversions()) {
-                    PerformConversions::dispatch(
-                        $media, $mediaGroup->getConversions()
-                    );
-                }
-            });
+            $model::findMany($ids)
+                ->each(function ($media) use ($mediaGroup) {
+                    if ($mediaGroup->hasConversions()) {
+                        PerformConversions::dispatch(
+                            $media, $mediaGroup->getConversions()
+                        );
+                    }
+                });
         }
 
         $this->media()->attach($ids, [
@@ -70,7 +70,7 @@ trait HasMedia
             return $media->modelKeys();
         }
 
-        if ($media instanceof Model) {
+        if ($media instanceof Media) {
             return [$media->getKey()];
         }
 

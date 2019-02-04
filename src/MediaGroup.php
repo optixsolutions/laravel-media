@@ -13,6 +13,11 @@ class MediaGroup
         $this->name = $name;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
     public function performConversions(...$conversions)
     {
         $this->conversions = $conversions;
