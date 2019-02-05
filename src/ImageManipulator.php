@@ -20,7 +20,7 @@ class ImageManipulator
             $path = $media->getPath($conversion);
 
             if ($onlyIfMissing && $media->filesystem()->exists($path))  {
-                break;
+                continue;
             }
 
             $image = ($this->conversions->get($conversion))(
