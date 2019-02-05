@@ -48,15 +48,16 @@ trait HasMedia
 
         if ($mediaGroup = $this->getMediaGroup($group)) {
             $model = config('media.model');
+            
+            $media = $model::findMany($ids);
 
-            $model::findMany($ids)
-                ->each(function ($media) use ($mediaGroup) {
-                    if ($mediaGroup->hasConversions()) {
-                        PerformConversions::dispatch(
-                            $media, $mediaGroup->getConversions()
-                        );
-                    }
-                });
+            $media->each(function ($media) use ($mediaGroup) {
+                if ($mediaGroup->hasConversions()) {
+                    PerformConversions::dispatch(
+                        $media, $mediaGroup->getConversions()
+                    );
+                }
+            });
         }
 
         $this->media()->attach($ids, [
