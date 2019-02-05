@@ -29,15 +29,20 @@ class Media extends Model
 
     public function getPath(string $conversion = '')
     {
-        $path = $this->getKey();
+        $directory = $this->getDirectory();
 
         if ($conversion) {
-            $path .= '/conversions/' . $conversion;
+            $directory .= '/conversions/' . $conversion;
         }
 
-        return $path . '/' . $this->file_name;
+        return $directory . '/' . $this->file_name;
     }
 
+    public function getDirectory()
+    {
+        return $this->getKey();
+    }
+    
     public function filesystem()
     {
         return Storage::disk($this->disk);
