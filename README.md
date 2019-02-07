@@ -2,32 +2,6 @@
 
 Upload and attach files to eloquent models.
 
-## Usage
-
-```php
-$media = MediaUploader::fromFile($file)->upload();
-```
-
-```php
-$post = Post::create($request->all());
-$post->attachMedia($mediaId)->toMediaCollection('image');
-$post->getMedia('image')->first()->getUrl();
-```
-
-```php
-Conversion::register('thumb', function (Image $image) {
-    return $image->fit(64, 64);
-});
-```
-
-```php
-$post->attachMedia($mediaId)
-     ->performConversion('thumb')
-     ->toMediaCollection('thumb');
-
-$post->getMedia('image')->first()->getUrl('thumb');
-```
-
 ## Installation
 
 ```bash
@@ -38,9 +12,37 @@ composer require optix/media
 php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvider"
 ```
 
-## Documentation
+## Usage
 
-Documentation is in the works - please read through the source for now.
+### Uploading media
+
+You can use the `MediaUploader` class to handle media uploads.
+
+By default, it stores files on the disk specified in the media config file.
+It saves them as a sanitised version of their original file name,
+and then creates a media record in the database with the file's details.
+
+It's also possible to customise the way in which files are persisted on the server (as seen below).
+
+```php
+use Optix\Media\MediaUploader;
+
+$file = $request->input('file');
+
+// Default usage...
+$media = MediaUploader::fromFile($file)->upload();
+
+// Custom usage...
+$media = MediaUploader::fromFile($file)
+    ->useFileName('custom-file-name.jpg')
+    ->useName('Custom name')
+    ->withAttributes([
+        'custom_model_attribute' => true
+    ])
+    ->upload();
+```
+
+Todo!
 
 ## License
 
