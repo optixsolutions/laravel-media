@@ -16,17 +16,15 @@ php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvide
 
 ### Uploading media
 
-You can use the `MediaUploader` class to handle media uploads.
+You can use the `Optix\Media\MediaUploader` class to handle media uploads.
 
-By default, it stores files on the disk specified in the media config file.
-It saves them as a sanitised version of their original file name,
-and then creates a media record in the database with the file's details.
+By default, this class uploads files to the disk specified in the media config file.
+It stores them as a sanitised version of their original file name,
+and creates a media record in the database with the file's details.
 
 It's also possible to customise the way in which files are persisted on the server (as seen below).
 
 ```php
-use Optix\Media\MediaUploader;
-
 $file = $request->input('file');
 
 // Default usage...
@@ -41,6 +39,10 @@ $media = MediaUploader::fromFile($file)
     ])
     ->upload();
 ```
+
+### Attaching media
+
+### Image manipulations
 
 Todo!
 
