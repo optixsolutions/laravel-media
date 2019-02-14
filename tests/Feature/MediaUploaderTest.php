@@ -18,4 +18,14 @@ class MediaUploaderTest extends TestCase
         $this->assertInstanceOf(Media::class, $media);
         $this->assertTrue($media->filesystem()->exists($media->getPath()));
     }
+
+    // it_can_change_the_name_of_the_media_model
+
+    // it_can_rename_the_file_before_it_gets_uploaded
+
+    // it_will_sanitise_the_file_name
+
+    // it_will_use_the_given_file_name_sanitiser
+
+    // it_can_save_custom_attributes_to_the_media_model
 }
