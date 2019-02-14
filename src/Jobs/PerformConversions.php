@@ -18,12 +18,6 @@ class PerformConversions implements ShouldQueue
 
     protected $conversions;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param  Media  $media
-     * @param  array  $conversions
-     */
     public function __construct(Media $media, array $conversions)
     {
         $this->media = $media;
@@ -31,11 +25,6 @@ class PerformConversions implements ShouldQueue
         $this->conversions = $conversions;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
         app(ImageManipulator::class)->manipulate(

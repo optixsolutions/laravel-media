@@ -22,7 +22,7 @@ By default, this class uploads files to the disk specified in the media config f
 It stores them as a sanitised version of their original file name,
 and creates a media record in the database with the file's details.
 
-It's also possible to customise the way in which files are persisted on the server (as seen below).
+It's also possible to customise certain properties of the file before it gets uploaded.
 
 ```php
 $file = $request->input('file');
@@ -34,17 +34,39 @@ $media = MediaUploader::fromFile($file)->upload();
 $media = MediaUploader::fromFile($file)
     ->useFileName('custom-file-name.jpg')
     ->useName('Custom name')
-    ->withAttributes([
-        'custom_model_attribute' => true
-    ])
     ->upload();
 ```
 
 ### Attaching media
 
-### Image manipulations
+Firstly, use the `Optix\Media\HasMedia` trait on your subject model.
 
-Todo!
+```php
+use Optix\Media\HasMedia;
+
+class Post extends Model
+{
+    use HasMedia;
+}
+```
+
+Then follow the example below.
+
+```php
+$post = new Post::first();
+
+// To the default group...
+$media = $post->attachMedia($media);
+
+// To a custom group...
+$media = $post->attachMedia($media, 'group');
+```
+
+The media parameter `$media` can be an id, a media model, or an iterable group of id's or media models.
+
+### Retrieving media
+
+### Image manipulations
 
 ## License
 

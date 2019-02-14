@@ -2,7 +2,6 @@
 
 namespace Optix\Media;
 
-use Optix\Media\Models\Media;
 use Illuminate\Http\UploadedFile;
 
 class MediaUploader
