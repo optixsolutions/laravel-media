@@ -39,7 +39,7 @@ $media = MediaUploader::fromFile($file)
 
 ### Attaching media
 
-Firstly, use the `Optix\Media\HasMedia` trait on your subject model.
+Firstly, include the `Optix\Media\HasMedia` trait on your subject model.
 
 ```php
 use Optix\Media\HasMedia;
@@ -50,23 +50,77 @@ class Post extends Model
 }
 ```
 
-Then follow the example below.
+You can then attach media to your subject model like so...
 
 ```php
 $post = new Post::first();
 
-// To the default group...
+// To the 'default' group...
 $media = $post->attachMedia($media);
 
 // To a custom group...
 $media = $post->attachMedia($media, 'group');
 ```
 
-The media parameter `$media` can be an id, a media model, or an iterable group of id's or media models.
+The `$media` parameter can either be an id, a media model, or an iterable group of ids / media models.
+
+You can detach media from the subject model like so...
+
+```php
+// Detach all media...
+$post->detachMedia();
+
+// Detach the specified media...
+$post->detachMedia([1, 2, 3]);
+
+// Detach all media in the specified group...
+$post->clearMediaGroup('group');
+```
 
 ### Retrieving media
 
+```php
+$allMedia = $post->getMedia('group');
+
+$media = $post->getFirstMedia('group');
+
+$url = $media->getUrl('group'); // $post->getFirstMediaUrl('group');
+```
+
 ### Image manipulations
+
+```php
+use Intervention\Image\Image;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function boot()
+    {
+        Conversion::register('thumb', function (Image $image) {
+            return $image->fit(64, 64);
+        });
+    }
+}
+```
+
+```php
+class Post extends Model
+{
+    use HasMedia;
+    
+    public function registerMediaGroups()
+    {
+        $this->addMediaGroup('group')
+             ->performConversions('thumb');
+    }
+}
+```
+
+```php
+$post = Post::first();
+
+$post->getFirstMediaUrl('group', 'thumb');
+```
 
 ## License
 
