@@ -22,7 +22,7 @@ By default, this class uploads files to the disk specified in the media config f
 It stores them as a sanitised version of their original file name,
 and creates a media record in the database with the file's details.
 
-It's also possible to customise certain properties of the file before it gets uploaded.
+It's also possible to customise certain properties of the file before it's uploaded.
 
 ```php
 $file = $request->input('file');
@@ -91,6 +91,7 @@ $url = $media->getUrl('group'); // $post->getFirstMediaUrl('group');
 
 ```php
 use Intervention\Image\Image;
+use Optix\Media\Facades\Conversion;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -119,7 +120,7 @@ class Post extends Model
 ```php
 $post = Post::first();
 
-$post->getFirstMediaUrl('group', 'thumb');
+$url = $post->getFirstMediaUrl('group', 'thumb');
 ```
 
 ## License

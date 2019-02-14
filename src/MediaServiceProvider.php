@@ -25,6 +25,10 @@ class MediaServiceProvider extends ServiceProvider
 
     public function register()
     {
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/media.php', 'media'
+        );
+
         $this->app->singleton(ConversionManager::class);
     }
 }
