@@ -104,5 +104,16 @@ class MediaUploaderTest extends TestCase
         ];
     }
 
-    // it_can_save_custom_attributes_to_the_media_model
+    /** @test */
+    public function it_can_save_custom_attributes_to_the_media_model()
+    {
+        config(['media.model' => CustomMedia::class]);
+        $file = UploadedFile::fake()->image('image.jpg');
+        $media = MediaUploader::fromFile($file);
+        $media->withAttributes(['custom_attribute' => 'A']);
+        $freshMedia = $media->upload();
+
+        $this->assertInstanceOf(CustomMedia::class, $freshMedia);
+        $this->assertEquals('A', $freshMedia->custom_attribute);
+    }
 }
