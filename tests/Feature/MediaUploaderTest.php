@@ -12,14 +12,23 @@ class MediaUploaderTest extends TestCase
     public function it_can_upload_media()
     {
         $file = UploadedFile::fake()->image('image.jpg');
-
         $media = MediaUploader::fromFile($file)->upload();
 
         $this->assertInstanceOf(Media::class, $media);
         $this->assertTrue($media->filesystem()->exists($media->getPath()));
     }
 
-    // it_can_change_the_name_of_the_media_model
+    /** @test */
+    public function it_can_change_the_name_of_the_media_model()
+    {
+        $newFilename = 'new-filename.jpg';
+        $file = UploadedFile::fake()->image('original-name.jpg');
+        $media = MediaUploader::fromFile($file);
+        $media->useFileName($newFilename);
+        $freshMedia = $media->upload();
+
+        $this->assertEquals($newFilename, $freshMedia->file_name);
+    }
 
     // it_can_rename_the_file_before_it_gets_uploaded
 
@@ -35,6 +44,7 @@ class MediaUploaderTest extends TestCase
         $file = UploadedFile::fake()->image($initialFileName);
         $media = MediaUploader::fromFile($file);
         $actualFilename = $media->getFileName();
+
         $this->assertEquals($expectedFileName, $actualFilename);
     }
 
@@ -63,6 +73,7 @@ class MediaUploaderTest extends TestCase
         $file = UploadedFile::fake()->image($initialFileName);
         $media = MediaUploader::fromFile($file, $sanitiser);
         $actualFilename = $media->getFileName();
+
         $this->assertEquals($expectedFileName, $actualFilename);
     }
 
