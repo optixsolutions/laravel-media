@@ -42,13 +42,7 @@ class TestCase extends BaseTestCase
                 $table->timestamps();
             });
 
-        if (! class_exists('CreateMediaTable')) {
-            $this->artisan('vendor:publish', [
-                '--provider' => MediaServiceProvider::class,
-                '--tag' => 'migrations'
-            ]);
-        }
-
-        $this->artisan('migrate');
+        require_once __DIR__ . '/../database/migrations/create_media_table.stub';
+        (new \CreateMediaTable())->up();
     }
 }
