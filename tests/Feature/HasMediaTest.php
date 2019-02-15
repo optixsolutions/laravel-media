@@ -31,25 +31,51 @@ class HasMediaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_retrieve_media_from_a_specified_group()
+    public function it_can_get_all_the_media_in_a_group()
+    {
+        $media = factory(Media::class, 2)->create();
+
+        $this->testModel->attachMedia($media, 'group');
+
+        $allMedia = $this->testModel->getMedia('group');
+
+        $this->assertEquals(2, $allMedia->count());
+        $this->assertEmpty($media->diff($allMedia));
+    }
+
+    /** @test */
+    public function it_will_only_get_media_in_the_specified_group()
     {
         $mediaOne = factory(Media::class)->create();
         $mediaTwo = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($mediaOne, 'group-one');
-        $this->testModel->attachMedia($mediaTwo, 'group-two');
-        
-        $groupOneMedia = $this->testModel->getMedia('group-one');
-        $groupTwoMedia = $this->testModel->getMedia('group-two');
+        $this->testModel->attachMedia($mediaOne); // default
+        $this->testModel->attachMedia($mediaTwo, 'custom');
 
-        $this->assertEquals(1, $groupOneMedia->count());
-        $this->assertEquals(1, $groupTwoMedia->count());
-        $this->assertEquals($mediaOne->id, $groupOneMedia->first()->id);
-        $this->assertEquals($mediaTwo->id, $groupTwoMedia->first()->id);
+        $defaultGroupMedia = $this->testModel->getMedia();
+        $customGroupMedia = $this->testModel->getMedia('custom');
+
+        $this->assertCount(1, $defaultGroupMedia);
+        $this->assertCount(1, $customGroupMedia);
+        $this->assertEquals($mediaOne->id, $defaultGroupMedia->first()->id);
+        $this->assertEquals($mediaTwo->id, $customGroupMedia->first()->id);
+    }
+    
+    /** @test */
+    public function it_can_get_the_first_media_item_in_a_group()
+    {
+        $media = factory(Media::class)->create();
+
+        $this->testModel->attachMedia($media, 'group');
+
+        $firstMedia = $this->testModel->getFirstMedia('group');
+
+        $this->assertInstanceOf(Media::class, $firstMedia);
+        $this->assertEquals($media->id, $firstMedia->id);
     }
 
     /** @test */
-    public function it_can_determine_if_a_model_has_media_in_a_specified_group()
+    public function it_can_determine_if_a_model_has_media_in_a_group()
     {
         $media = factory(Media::class)->create();
 
