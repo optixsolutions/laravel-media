@@ -4,7 +4,6 @@ namespace Optix\Media\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Optix\Media\PathGenerator\PathGenerator;
 
 class Media extends Model
 {
