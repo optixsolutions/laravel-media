@@ -27,15 +27,15 @@ class MediaUploaderTest extends TestCase
      * @test
      * @dataProvider provide_filenames
      *
-     * @param string $initialFilename Filename provided to MediaUploader
-     * @param string $expectedFilename The expected sanitised filename
+     * @param string $initialFileName Filename provided to MediaUploader
+     * @param string $expectedFileName The expected sanitised filename
      */
-    public function it_will_sanitise_the_file_name(string $initialFilename, string $expectedFilename)
+    public function it_will_sanitise_the_file_name(string $initialFileName, string $expectedFileName)
     {
-        $file = UploadedFile::fake()->image($initialFilename);
+        $file = UploadedFile::fake()->image($initialFileName);
         $media = MediaUploader::fromFile($file);
         $actualFilename = $media->getFileName();
-        $this->assertEquals($expectedFilename, $actualFilename);
+        $this->assertEquals($expectedFileName, $actualFilename);
     }
 
     public function provide_filenames()
@@ -47,7 +47,40 @@ class MediaUploaderTest extends TestCase
         ];
     }
 
-    // it_will_use_the_given_file_name_sanitiser
+    /**
+     * @test
+     * @dataProvider provide_sanitisers
+     *
+     * @param string $initialFileName Filename provided to MediaUploader
+     * @param string $expectedFileName The expected sanitised filename
+     * @param callable $sanitiser A custom file name sanitiser
+     */
+    public function it_will_use_the_given_file_name_sanitiser(
+        string $initialFileName,
+        string $expectedFileName,
+        callable $sanitiser
+    ) {
+        $file = UploadedFile::fake()->image($initialFileName);
+        $media = MediaUploader::fromFile($file, $sanitiser);
+        $actualFilename = $media->getFileName();
+        $this->assertEquals($expectedFileName, $actualFilename);
+    }
+
+    public function provide_sanitisers()
+    {
+        $noBrackets = function (string $fileName) {
+            return str_replace(['(', ')'], '', $fileName);
+        };
+
+        $noUpperCase = function (string $fileName) {
+            return strtolower($fileName);
+        };
+
+        return [
+            ['filename-with-brackets(1).jpg', 'filename-with-brackets1.jpg', $noBrackets],
+            ['SHOUTY-filename.gif', 'shouty-filename.gif', $noUpperCase],
+        ];
+    }
 
     // it_can_save_custom_attributes_to_the_media_model
 }
