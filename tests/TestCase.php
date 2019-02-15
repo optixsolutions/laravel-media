@@ -45,6 +45,8 @@ class TestCase extends BaseTestCase
             });
 
         require_once __DIR__ . '/../database/migrations/create_media_table.stub';
+        require_once __DIR__ . '/../database/migrations/create_custom_media_table.stub';
         (new \CreateMediaTable())->up();
+        (new \CreateCustomMediaTable())->up();
     }
 }
