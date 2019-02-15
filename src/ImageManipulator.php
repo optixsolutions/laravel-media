@@ -2,16 +2,19 @@
 
 namespace Optix\Media;
 
+use Intervention\Image\Image;
+use Intervention\Image\ImageManager;
 use Optix\Media\Models\Media;
-use Intervention\Image\Facades\Image;
 
 class ImageManipulator
 {
-    protected $conversions;
+    private $conversionManager;
+    private $imageManager;
 
-    public function __construct(ConversionManager $conversions)
+    public function __construct(ConversionManager $conversionManager, ImageManager $imageManager)
     {
-        $this->conversions = $conversions;
+        $this->conversionManager = $conversionManager;
+        $this->imageManager = $imageManager;
     }
 
     public function manipulate(Media $media, array $conversions, $onlyIfMissing = true)
@@ -19,13 +22,13 @@ class ImageManipulator
         foreach ($conversions as $conversion) {
             $path = $media->getPath($conversion);
 
-            if ($onlyIfMissing && $media->filesystem()->exists($path))  {
+            if ($onlyIfMissing && $media->filesystem()->exists($path)) {
                 continue;
             }
 
-            $image = ($this->conversions->get($conversion))(
-                Image::make($media->getFullPath())
-            );
+            $converter = $this->conversionManager->get($conversion);
+            /** @var Image $image */
+            $image = $converter($this->imageManager->make($media->getFullPath()));
 
             $media->filesystem()->put($path, $image->stream());
         }
