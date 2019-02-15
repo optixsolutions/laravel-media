@@ -49,6 +49,11 @@ class MediaUploader
         return $this;
     }
 
+    public function getFileName(): string
+    {
+        return $this->fileName;
+    }
+
     public function useFileName(string $fileName)
     {
         return $this->setFileName($fileName);

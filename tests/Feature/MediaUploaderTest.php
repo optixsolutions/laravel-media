@@ -2,9 +2,9 @@
 
 namespace Optix\Media\Tests;
 
-use Optix\Media\Models\Media;
-use Optix\Media\MediaUploader;
 use Illuminate\Http\UploadedFile;
+use Optix\Media\MediaUploader;
+use Optix\Media\Models\Media;
 
 class MediaUploaderTest extends TestCase
 {
@@ -23,7 +23,29 @@ class MediaUploaderTest extends TestCase
 
     // it_can_rename_the_file_before_it_gets_uploaded
 
-    // it_will_sanitise_the_file_name
+    /**
+     * @test
+     * @dataProvider provide_filenames
+     *
+     * @param string $initialFilename Filename provided to MediaUploader
+     * @param string $expectedFilename The expected sanitised filename
+     */
+    public function it_will_sanitise_the_file_name(string $initialFilename, string $expectedFilename)
+    {
+        $file = UploadedFile::fake()->image($initialFilename);
+        $media = MediaUploader::fromFile($file);
+        $actualFilename = $media->getFileName();
+        $this->assertEquals($expectedFilename, $actualFilename);
+    }
+
+    public function provide_filenames()
+    {
+        return [
+            ['simple-filename.jpg', 'simple-filename.jpg'],
+            ['file with spaces.doc', 'file-with-spaces.doc'],
+            ['import#0001', 'import-0001'],
+        ];
+    }
 
     // it_will_use_the_given_file_name_sanitiser
 
