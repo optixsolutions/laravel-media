@@ -14,17 +14,14 @@ class MediaUploader
 
     protected $attributes = [];
 
-    protected $customSanitiser;
-
-    public function __construct(UploadedFile $file, callable $sanitiser = null)
+    public function __construct(UploadedFile $file)
     {
-        $this->customSanitiser = $sanitiser;
         $this->setFile($file);
     }
 
-    public static function fromFile(UploadedFile $file, callable $sanitiser = null)
+    public static function fromFile(UploadedFile $file)
     {
-        return new static($file, $sanitiser);
+        return new static($file);
     }
 
     public function setFile(UploadedFile $file)
@@ -52,11 +49,6 @@ class MediaUploader
         return $this;
     }
 
-    public function getFileName(): string
-    {
-        return $this->fileName;
-    }
-
     public function useFileName(string $fileName)
     {
         return $this->setFileName($fileName);
@@ -64,18 +56,14 @@ class MediaUploader
 
     public function setFileName(string $fileName)
     {
-        $this->fileName = $this->sanitizeFileName($fileName);
+        $this->fileName = $this->sanitiseFileName($fileName);
 
         return $this;
     }
 
-    protected function sanitizeFileName(string $fileName)
+    protected function sanitiseFileName(string $fileName)
     {
-        if (is_callable($this->customSanitiser)) {
-            return ($this->customSanitiser)($fileName);
-        } else {
-            return str_replace(['#', '/', '\\', ' '], '-', $fileName);
-        }
+        return str_replace(['#', '/', '\\', ' '], '-', $fileName);
     }
 
     public function withProperties(array $properties)

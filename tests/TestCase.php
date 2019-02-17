@@ -36,17 +36,25 @@ class TestCase extends BaseTestCase
 
     protected function setUpDatabase($app)
     {
-        $app['db']
-            ->connection()
-            ->getSchemaBuilder()
-            ->create('test_models', function (Blueprint $table) {
-                $table->increments('id');
-                $table->timestamps();
-            });
+        $schema = $app['db']->connection()->getSchemaBuilder();
+
+        $schema->create('test_models', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
+        });
+
+        $schema->create('custom_media', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('file_name');
+            $table->string('disk');
+            $table->string('mime_type');
+            $table->unsignedInteger('size');
+            $table->string('custom_attribute');
+            $table->timestamps();
+        });
 
         require_once __DIR__ . '/../database/migrations/create_media_table.stub';
-        require_once __DIR__ . '/../database/migrations/create_custom_media_table.stub';
         (new \CreateMediaTable())->up();
-        (new \CreateCustomMediaTable())->up();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Optix\Media\Tests;
+namespace Optix\Media\Tests\Models;
 
 use Optix\Media\Models\Media;
 

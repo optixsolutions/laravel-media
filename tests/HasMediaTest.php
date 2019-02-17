@@ -1,10 +1,9 @@
 <?php
 
-namespace Optix\Media\Tests\Feature;
+namespace Optix\Media\Tests;
 
 use Optix\Media\Models\Media;
-use Optix\Media\Tests\TestCase;
-use Optix\Media\Tests\TestModel;
+use Optix\Media\Tests\Models\TestModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
