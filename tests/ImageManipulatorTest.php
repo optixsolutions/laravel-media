@@ -48,7 +48,7 @@ class ImageManipulatorTest extends TestCase
     }
 
     /** @test */
-    public function conversions_can_be_skipped_if_the_converted_file_already_exists()
+    public function it_can_skip_conversions_if_the_converted_image_already_exists()
     {
         $conversionManager = new ConversionManager();
 

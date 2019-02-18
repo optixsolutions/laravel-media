@@ -42,7 +42,7 @@ class HasMediaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_all_of_the_media_in_a_group()
+    public function it_can_get_all_the_media_in_a_group()
     {
         $media = factory(Media::class, 2)->create();
 
