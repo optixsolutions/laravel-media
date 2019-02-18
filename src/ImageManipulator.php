@@ -2,18 +2,19 @@
 
 namespace Optix\Media;
 
-use Intervention\Image\Image;
-use Intervention\Image\ImageManager;
 use Optix\Media\Models\Media;
+use Intervention\Image\ImageManager;
 
 class ImageManipulator
 {
-    private $conversionManager;
-    private $imageManager;
+    protected $conversionManager;
+
+    protected $imageManager;
 
     public function __construct(ConversionManager $conversionManager, ImageManager $imageManager)
     {
         $this->conversionManager = $conversionManager;
+
         $this->imageManager = $imageManager;
     }
 
@@ -27,7 +28,7 @@ class ImageManipulator
             }
 
             $converter = $this->conversionManager->get($conversion);
-            /** @var Image $image */
+
             $image = $converter($this->imageManager->make($media->getFullPath()));
 
             $media->filesystem()->put($path, $image->stream());
