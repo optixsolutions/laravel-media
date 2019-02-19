@@ -42,7 +42,7 @@ class ConversionManagerTest extends TestCase
     }
 
     /** @test */
-    public function there_can_only_be_one_registered_conversion_with_the_same_name()
+    public function there_can_only_be_one_conversion_registered_with_the_same_name()
     {
         $conversionManager = new ConversionManager();
 

@@ -14,7 +14,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 class ImageManipulatorTest extends TestCase
 {
     /** @test */
-    public function it_will_ignore_unknown_conversions()
+    public function it_will_ignore_unregistered_conversions()
     {
         $this->expectException(InvalidConversion::class);
 
@@ -27,7 +27,7 @@ class ImageManipulatorTest extends TestCase
     }
 
     /** @test */
-    public function it_will_apply_known_conversions()
+    public function it_will_apply_registered_conversions()
     {
         $conversionManager = new ConversionManager();
 

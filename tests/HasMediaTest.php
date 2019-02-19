@@ -5,6 +5,7 @@ namespace Optix\Media\Tests;
 use Optix\Media\Models\Media;
 use Optix\Media\Tests\Models\TestModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class HasMediaTest extends TestCase
@@ -21,7 +22,13 @@ class HasMediaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_attach_media_to_a_model()
+    public function it_registers_the_media_relationship()
+    {
+        $this->assertInstanceOf(MorphToMany::class, $this->testModel->media());
+    }
+
+    /** @test */
+    public function it_can_attach_media_to_the_default_group()
     {
         $media = factory(Media::class)->create();
 
@@ -30,10 +37,41 @@ class HasMediaTest extends TestCase
         $attachedMedia = $this->testModel->media()->first();
 
         $this->assertEquals($media->id, $attachedMedia->id);
+        $this->assertEquals('default', $attachedMedia->pivot->group);
     }
-    
+
     /** @test */
-    public function it_can_handle_retrieving_media_from_an_empty_group()
+    public function it_can_attach_media_to_a_custom_group()
+    {
+        $media = factory(Media::class)->create();
+
+        $this->testModel->attachMedia($media, 'gallery');
+
+        $attachedMedia = $this->testModel->media()->first();
+
+        $this->assertEquals($media->id, $attachedMedia->id);
+        $this->assertEquals('gallery', $attachedMedia->pivot->group);
+    }
+
+    /** @test */
+    public function it_can_attach_multiple_media()
+    {
+        $media = factory(Media::class, 3)->create();
+
+        $this->testModel->attachMedia($media);
+
+        $attachedMedia = $this->testModel->media()->get();
+
+        $this->assertCount(3, $attachedMedia);
+        $this->assertEmpty($media->diff($attachedMedia));
+
+        $attachedMedia->each(function ($media) {
+            $this->assertEquals('default', $media->pivot->group);
+        });
+    }
+
+    /** @test */
+    public function it_can_handle_attempts_to_retrieve_media_from_an_empty_group()
     {
         $media = $this->testModel->getMedia();
 
@@ -42,26 +80,52 @@ class HasMediaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_all_the_media_in_a_group()
+    public function it_can_get_all_the_media_in_the_default_group()
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media, 'group');
+        $this->testModel->attachMedia($media);
 
-        $allMedia = $this->testModel->getMedia('group');
+        $defaultMedia = $this->testModel->getMedia();
 
-        $this->assertEquals(2, $allMedia->count());
-        $this->assertEmpty($media->diff($allMedia));
+        $this->assertEquals(2, $defaultMedia->count());
+        $this->assertEmpty($media->diff($defaultMedia));
     }
-    
+
     /** @test */
-    public function it_can_get_the_first_media_item_in_a_group()
+    public function it_can_get_all_the_media_in_a_specified_group()
+    {
+        $media = factory(Media::class, 2)->create();
+
+        $this->testModel->attachMedia($media, 'gallery');
+
+        $galleryMedia = $this->testModel->getMedia('gallery');
+
+        $this->assertEquals(2, $galleryMedia->count());
+        $this->assertEmpty($media->diff($galleryMedia));
+    }
+
+    /** @test */
+    public function it_can_get_the_first_media_item_in_the_default_group()
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, 'group');
+        $this->testModel->attachMedia($media);
 
-        $firstMedia = $this->testModel->getFirstMedia('group');
+        $firstMedia = $this->testModel->getFirstMedia();
+
+        $this->assertInstanceOf(Media::class, $firstMedia);
+        $this->assertEquals($media->id, $firstMedia->id);
+    }
+
+    /** @test */
+    public function it_can_get_the_first_media_item_in_a_specified_group()
+    {
+        $media = factory(Media::class)->create();
+
+        $this->testModel->attachMedia($media, 'gallery');
+
+        $firstMedia = $this->testModel->getFirstMedia('gallery');
 
         $this->assertInstanceOf(Media::class, $firstMedia);
         $this->assertEquals($media->id, $firstMedia->id);
@@ -70,81 +134,123 @@ class HasMediaTest extends TestCase
     /** @test */
     public function it_will_only_get_media_in_the_specified_group()
     {
-        $mediaOne = factory(Media::class)->create();
-        $mediaTwo = factory(Media::class)->create();
+        $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($mediaOne); // default
-        $this->testModel->attachMedia($mediaTwo, 'custom');
+        // Attach media to the default group...
+        $this->testModel->attachMedia($defaultMediaId = $media->first()->id);
 
-        $defaultGroupMedia = $this->testModel->getMedia();
+        // Attach media to the gallery group...
+        $this->testModel->attachMedia($galleryMediaId = $media->last()->id, 'gallery');
 
-        $customGroupMedia = $this->testModel->getMedia('custom');
-        $firstCustomGroupMedia = $this->testModel->getFirstMedia('custom');
+        $defaultMedia = $this->testModel->getMedia();
+        $galleryMedia = $this->testModel->getMedia('gallery');
+        $firstGalleryMedia = $this->testModel->getFirstMedia('gallery');
 
-        $this->assertCount(1, $defaultGroupMedia);
-        $this->assertEquals($mediaOne->id, $defaultGroupMedia->first()->id);
+        $this->assertCount(1, $defaultMedia);
+        $this->assertEquals($defaultMediaId, $defaultMedia->first()->id);
 
-        $this->assertCount(1, $customGroupMedia);
-        $this->assertEquals($mediaTwo->id, $customGroupMedia->first()->id);
-        $this->assertEquals($mediaTwo->id, $firstCustomGroupMedia->id);
+        $this->assertCount(1, $galleryMedia);
+        $this->assertEquals($galleryMediaId, $galleryMedia->first()->id);
+        $this->assertEquals($galleryMediaId, $firstGalleryMedia->id);
+
     }
 
     /** @test */
-    public function it_can_determine_if_a_model_has_media_in_a_group()
+    public function it_can_get_the_url_of_the_first_media_item_in_the_default_group()
     {
         $media = factory(Media::class)->create();
 
         $this->testModel->attachMedia($media);
-        $this->testModel->attachMedia($media, 'custom');
 
-        $this->assertTrue($this->testModel->hasMedia()); // default
-        $this->assertTrue($this->testModel->HasMedia('custom'));
+        $url = $this->testModel->getFirstMediaUrl();
+
+        $this->assertEquals($media->getUrl(), $url);
+    }
+
+    /** @test */
+    public function it_can_get_the_url_of_the_first_media_item_in_a_specified_group()
+    {
+        $media = factory(Media::class)->create();
+
+        $this->testModel->attachMedia($media, 'gallery');
+
+        $url = $this->testModel->getFirstMediaUrl('gallery');
+
+        $this->assertEquals($media->getUrl(), $url);
+    }
+
+    /** @test */
+    public function it_can_get_the_converted_image_url_of_the_first_media_item_in_a_specified_group()
+    {
+        $media = factory(Media::class)->create();
+
+        $this->testModel->attachMedia($media, 'gallery');
+
+        $url = $this->testModel->getFirstMediaUrl('gallery', 'conversion-name');
+
+        $this->assertEquals($media->getUrl('conversion-name'), $url);
+    }
+
+    /** @test */
+    public function it_can_determine_if_there_is_media_in_the_default_group()
+    {
+        $media = factory(Media::class)->create();
+
+        $this->testModel->attachMedia($media);
+
+        $this->assertTrue($this->testModel->hasMedia());
         $this->assertFalse($this->testModel->hasMedia('empty'));
     }
 
     /** @test */
-    public function it_can_detach_all_media_from_the_model()
+    public function it_can_determine_if_there_is_media_in_a_specified_group()
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media);
-        $this->testModel->attachMedia($media, 'group');
+        $this->testModel->attachMedia($media, 'gallery');
+
+        $this->assertTrue($this->testModel->HasMedia('gallery'));
+        $this->assertFalse($this->testModel->hasMedia());
+    }
+
+    /** @test */
+    public function it_can_detach_all_the_media()
+    {
+        $media = factory(Media::class, 2)->create();
+
+        $this->testModel->attachMedia($media->first());
+        $this->testModel->attachMedia($media->last(), 'gallery');
 
         $this->testModel->detachMedia();
 
-        $this->assertEmpty($this->testModel->getMedia());
-        $this->assertEmpty($this->testModel->getMedia('group'));
+        $this->assertEmpty($this->testModel->media()->get());
     }
-    
+
     /** @test */
-    public function it_can_detach_specific_media_items_from_the_model()
+    public function it_can_detach_specific_media_items()
     {
-        $mediaOne = factory(Media::class)->create();
-        $mediaTwo = factory(Media::class)->create();
+        $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia([
-            $mediaOne->id, $mediaTwo->id
-        ]);
+        $this->testModel->attachMedia($media);
 
-        $this->testModel->detachMedia($mediaOne->id);
+        $this->testModel->detachMedia($media->first());
 
         $this->assertCount(1, $this->testModel->getMedia());
-        $this->assertEquals($mediaTwo->id, $this->testModel->getFirstMedia()->id);
+        $this->assertEquals($media->last()->id, $this->testModel->getFirstMedia()->id);
     }
-    
-    /** @test */
-    public function it_can_detach_all_media_in_a_group_from_the_model()
-    {
-        $mediaOne = factory(Media::class)->create();
-        $mediaTwo = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($mediaOne->id, 'one');
-        $this->testModel->attachMedia($mediaTwo->id, 'two');
+    /** @test */
+    public function it_can_detach_all_the_media_in_a_specified_group()
+    {
+        $media = factory(Media::class, 2)->create();
+
+        $this->testModel->attachMedia($media->first(), 'one');
+        $this->testModel->attachMedia($media->last(), 'two');
 
         $this->testModel->clearMediaGroup('one');
 
-        $this->assertEmpty($this->testModel->getMedia('one'));
+        $this->assertFalse($this->testModel->hasMedia('one'));
         $this->assertCount(1, $this->testModel->getMedia('two'));
-        $this->assertEquals($mediaTwo->id, $this->testModel->getFirstMedia('two')->id);
+        $this->assertEquals($media->last()->id, $this->testModel->getFirstMedia('two')->id);
     }
 }
