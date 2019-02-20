@@ -36,47 +36,38 @@ class HasMediaTest extends TestCase
 
         $attachedMedia = $this->testModel->media()->first();
 
-        $this->assertEquals($media->id, $attachedMedia->id);
+        $this->assertEquals($attachedMedia->id, $media->id);
         $this->assertEquals('default', $attachedMedia->pivot->group);
     }
 
     /** @test */
-    public function it_can_attach_media_to_a_custom_group()
+    public function it_can_attach_media_to_a_named_group()
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, 'gallery');
+        $this->testModel->attachMedia($media, $group = 'custom');
 
         $attachedMedia = $this->testModel->media()->first();
 
         $this->assertEquals($media->id, $attachedMedia->id);
-        $this->assertEquals('gallery', $attachedMedia->pivot->group);
+        $this->assertEquals($group, $attachedMedia->pivot->group);
     }
 
     /** @test */
-    public function it_can_attach_multiple_media()
+    public function it_can_attach_a_collection_of_media()
     {
-        $media = factory(Media::class, 3)->create();
+        $media = factory(Media::class, 2)->create();
 
         $this->testModel->attachMedia($media);
 
         $attachedMedia = $this->testModel->media()->get();
 
-        $this->assertCount(3, $attachedMedia);
+        $this->assertCount(2, $attachedMedia);
         $this->assertEmpty($media->diff($attachedMedia));
 
         $attachedMedia->each(function ($media) {
             $this->assertEquals('default', $media->pivot->group);
         });
-    }
-
-    /** @test */
-    public function it_can_handle_attempts_to_retrieve_media_from_an_empty_group()
-    {
-        $media = $this->testModel->getMedia();
-
-        $this->assertInstanceOf(EloquentCollection::class, $media);
-        $this->assertTrue($media->isEmpty());
     }
 
     /** @test */
@@ -103,6 +94,15 @@ class HasMediaTest extends TestCase
 
         $this->assertEquals(2, $galleryMedia->count());
         $this->assertEmpty($media->diff($galleryMedia));
+    }
+
+    /** @test */
+    public function it_can_handle_attempts_to_get_media_from_an_empty_group()
+    {
+        $media = $this->testModel->getMedia();
+
+        $this->assertInstanceOf(EloquentCollection::class, $media);
+        $this->assertTrue($media->isEmpty());
     }
 
     /** @test */
