@@ -5,6 +5,10 @@ namespace Optix\Media\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string file_name
+ * @property string mime_type
+ */
 class Media extends Model
 {
     protected $fillable = [

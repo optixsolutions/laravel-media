@@ -2,6 +2,7 @@
 
 namespace Optix\Media;
 
+use Optix\Media\Exceptions\InvalidFileType;
 use Optix\Media\Models\Media;
 use Intervention\Image\ImageManager;
 
@@ -20,6 +21,10 @@ class ImageManipulator
 
     public function manipulate(Media $media, array $conversions, $onlyIfMissing = true)
     {
+        if (!MediaType::isOfType($media, 'image')) {
+            throw InvalidFileType::wasExpecting('image', MediaType::getType($media));
+        }
+
         foreach ($conversions as $conversion) {
             $path = $media->getPath($conversion);
 

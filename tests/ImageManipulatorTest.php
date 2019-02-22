@@ -23,7 +23,7 @@ class ImageManipulatorTest extends TestCase
 
         $manipulator = new ImageManipulator($conversionManager, $imageManager);
 
-        $manipulator->manipulate(new Media(), ['unknown'], false);
+        $manipulator->manipulate(new Media(['mime_type' => 'image/gif']), ['unknown'], false);
     }
 
     /** @test */
@@ -44,7 +44,7 @@ class ImageManipulatorTest extends TestCase
         $imageManager->shouldReceive('make')->once()->andReturn($image);
 
         $manipulator = new ImageManipulator($conversionManager, $imageManager);
-        $manipulator->manipulate(new Media(), ['resize'], false);
+        $manipulator->manipulate(new Media(['mime_type' => 'image/gif']), ['resize'], false);
     }
 
     /** @test */
@@ -66,10 +66,23 @@ class ImageManipulatorTest extends TestCase
         $filesystem->shouldReceive('exists')->andReturn(true);
 
         $media = Mockery::mock(Media::class)->makePartial();
+        $media->mime_type = 'image/gif';
 
         $manipulator = new ImageManipulator($conversionManager, $imageManager);
         $manipulator->manipulate($media, ['resize'], true);
 
         $this->assertFalse($conversionApplied);
+    }
+
+    /**
+     * @test
+     * @expectedException \Optix\Media\Exceptions\InvalidFileType
+     */
+    public function it_will_throw_exception_if_not_image()
+    {
+        /** @var ImageManipulator $imageManipulator */
+        $imageManipulator = Mockery::mock(ImageManipulator::class)->makePartial();
+        $media = new Media(['mime_type' => 'text/html']);
+        $imageManipulator->manipulate($media, []);
     }
 }
