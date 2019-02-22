@@ -2,13 +2,13 @@
 
 namespace Optix\Media\Tests;
 
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
-use Optix\Media\Jobs\PerformConversions;
 use Optix\Media\Models\Media;
+use Illuminate\Support\Facades\Queue;
 use Optix\Media\Tests\Models\TestModel;
+use Optix\Media\Jobs\PerformConversions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class HasMediaTest extends TestCase
 {
@@ -267,12 +267,7 @@ class HasMediaTest extends TestCase
         $mediaCollection = factory(Media::class, 2)->create();
 
         $mediaGroup = $this->testModel->addMediaGroup('group1');
-        $mediaGroup->registerConversions(
-            [
-                function () {
-                },
-            ]
-        );
+        $mediaGroup->registerConversions([ function () {} ]);
 
         $this->testModel->attachMedia($mediaCollection, 'group1');
 
