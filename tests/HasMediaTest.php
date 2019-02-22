@@ -3,7 +3,9 @@
 namespace Optix\Media\Tests;
 
 use Optix\Media\Models\Media;
+use Illuminate\Support\Facades\Queue;
 use Optix\Media\Tests\Models\TestModel;
+use Optix\Media\Jobs\PerformConversions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -12,6 +14,7 @@ class HasMediaTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** @var TestModel */
     protected $testModel;
 
     protected function setUp()
@@ -65,9 +68,11 @@ class HasMediaTest extends TestCase
         $this->assertCount(2, $attachedMedia);
         $this->assertEmpty($media->diff($attachedMedia));
 
-        $attachedMedia->each(function ($media) {
-            $this->assertEquals('default', $media->pivot->group);
-        });
+        $attachedMedia->each(
+            function ($media) {
+                $this->assertEquals('default', $media->pivot->group);
+            }
+        );
     }
 
     /** @test */
@@ -252,5 +257,20 @@ class HasMediaTest extends TestCase
         $this->assertFalse($this->testModel->hasMedia('one'));
         $this->assertCount(1, $this->testModel->getMedia('two'));
         $this->assertEquals($media->last()->id, $this->testModel->getFirstMedia('two')->id);
+    }
+
+    /** @test */
+    public function it_will_dispatch_conversions_when_media_attached()
+    {
+        Queue::fake();
+        /** @var EloquentCollection<Media> $mediaCollection */
+        $mediaCollection = factory(Media::class, 2)->create();
+
+        $mediaGroup = $this->testModel->addMediaGroup('group1');
+        $mediaGroup->registerConversions([ function () {} ]);
+
+        $this->testModel->attachMedia($mediaCollection, 'group1');
+
+        Queue::assertPushed(PerformConversions::class, 2);
     }
 }

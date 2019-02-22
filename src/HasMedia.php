@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 trait HasMedia
 {
+    /** @var MediaGroup[] */
     protected $mediaGroups = [];
 
     public function media()
@@ -40,6 +41,10 @@ trait HasMedia
         return $media->getUrl($conversion);
     }
 
+    /**
+     * @param Collection|Media $media
+     * @param string $group
+     */
     public function attachMedia($media, string $group = 'default')
     {
         $this->registerMediaGroups();
@@ -48,7 +53,7 @@ trait HasMedia
 
         if ($mediaGroup = $this->getMediaGroup($group)) {
             $model = config('media.model');
-            
+
             $media = $model::findMany($ids);
 
             $media->each(function ($media) use ($mediaGroup) {
@@ -83,7 +88,7 @@ trait HasMedia
         //
     }
 
-    public function addMediaGroup(string $name)
+    public function addMediaGroup(string $name): MediaGroup
     {
         $group = new MediaGroup($name);
 
@@ -92,6 +97,11 @@ trait HasMedia
         return $group;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return MediaGroup|null
+     */
     public function getMediaGroup(string $name)
     {
         return $this->mediaGroups[$name] ?? null;

@@ -12,6 +12,6 @@ class TestModel extends Model
     public function registerMediaGroups()
     {
         $this->addMediaGroup('convert-images')
-             ->performConversions('conversion');
+             ->registerConversions('conversion');
     }
 }
