@@ -18,7 +18,7 @@ class MediaGroup
         return $this->name;
     }
 
-    public function performConversions(...$conversions)
+    public function registerConversions(...$conversions)
     {
         $this->conversions = $conversions;
 
