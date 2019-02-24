@@ -5,10 +5,6 @@ namespace Optix\Media\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * @property string file_name
- * @property string mime_type
- */
 class Media extends Model
 {
     protected $fillable = [
@@ -18,6 +14,16 @@ class Media extends Model
     public function getExtensionAttribute()
     {
         return pathinfo($this->file_name, PATHINFO_EXTENSION);
+    }
+
+    public function getTypeAttribute()
+    {
+        return str_before($this->mime_type, '/') ?? null;
+    }
+
+    public function isOfType(string $type)
+    {
+        return $this->type === $type;
     }
 
     public function getUrl(string $conversion = '')
