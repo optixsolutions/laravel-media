@@ -98,7 +98,7 @@ class MediaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_the_url_of_the_file()
+    public function it_can_get_the_url_to_the_file()
     {
         $media = Mockery::mock(Media::class)->makePartial();
 
@@ -113,7 +113,7 @@ class MediaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_the_url_of_a_converted_image()
+    public function it_can_get_the_url_to_a_converted_image()
     {
         $media = Mockery::mock(Media::class)->makePartial();
 

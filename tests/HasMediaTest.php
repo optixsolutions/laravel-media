@@ -75,6 +75,18 @@ class HasMediaTest extends TestCase
     }
 
     /** @test */
+    public function it_will_perform_the_registered_conversions_when_media_is_attached()
+    {
+        Queue::fake();
+
+        $media = factory(Media::class, 2)->create();
+
+        $this->subject->attachMedia($media, 'converted-images');
+
+        Queue::assertPushed(PerformConversions::class, 2);
+    }
+
+    /** @test */
     public function it_can_get_all_the_media_in_the_default_group()
     {
         $media = factory(Media::class, 2)->create();
@@ -261,17 +273,5 @@ class HasMediaTest extends TestCase
         $this->assertFalse($this->subject->hasMedia('one'));
         $this->assertCount(1, $this->subject->getMedia('two'));
         $this->assertEquals($mediaTwo->id, $this->subject->getFirstMedia('two')->id);
-    }
-
-    /** @test */
-    public function it_will_perform_conversions_when_media_is_attached()
-    {
-        Queue::fake();
-
-        $media = factory(Media::class, 2)->create();
-
-        $this->subject->attachMedia($media, 'converted-images');
-
-        Queue::assertPushed(PerformConversions::class, 2);
     }
 }
