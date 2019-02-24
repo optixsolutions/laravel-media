@@ -3,7 +3,6 @@
 namespace Optix\Media\Tests;
 
 use Optix\Media\MediaServiceProvider;
-use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase

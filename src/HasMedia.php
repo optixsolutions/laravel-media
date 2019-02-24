@@ -83,9 +83,9 @@ trait HasMedia
         //
     }
 
-    public function addMediaGroup(string $name): MediaGroup
+    protected function addMediaGroup(string $name)
     {
-        $group = new MediaGroup($name);
+        $group = new MediaGroup();
 
         $this->mediaGroups[$name] = $group;
 

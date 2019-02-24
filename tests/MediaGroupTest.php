@@ -6,34 +6,28 @@ use Optix\Media\MediaGroup;
 
 class MediaGroupTest extends TestCase
 {
-    const KNOWN_VALUE = 'KNOWN_VALUE';
-
     /** @test */
-    public function it_will_register_conversions_correctly()
+    public function it_can_register_and_retrieve_conversions()
     {
-        $mediaGroup = new MediaGroup('group1');
+        $mediaGroup = new MediaGroup();
 
-        $conversion1 = function () {
-            return self::KNOWN_VALUE;
-        };
-        $conversion2 = function () {
-            return self::KNOWN_VALUE;
-        };
-
-        $mediaGroup->performConversions($conversion1, $conversion2);
+        $mediaGroup->performConversions('one', 'two');
 
         $registeredConversions = $mediaGroup->getConversions();
 
-        $this->assertInternalType('array', $registeredConversions);
-        $this->assertEquals(2, count($registeredConversions));
+        $this->assertCount(2, $registeredConversions);
+        $this->assertEquals(['one', 'two'], $registeredConversions);
+    }
 
-        $registeredConversion1 = array_shift($registeredConversions);
-        $registeredConversion2 = array_shift($registeredConversions);
+    /** @test */
+    public function it_can_determine_if_any_conversions_have_been_registered()
+    {
+        $mediaGroup = new MediaGroup();
 
-        $this->assertInternalType('callable', $registeredConversion1);
-        $this->assertInternalType('callable', $registeredConversion2);
+        $this->assertFalse($mediaGroup->hasConversions());
 
-        $this->assertSame(self::KNOWN_VALUE, $registeredConversion1());
-        $this->assertSame(self::KNOWN_VALUE, $registeredConversion2());
+        $mediaGroup->performConversions('conversion');
+
+        $this->assertTrue($mediaGroup->hasConversions());
     }
 }

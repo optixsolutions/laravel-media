@@ -138,25 +138,25 @@ class HasMediaTest extends TestCase
     /** @test */
     public function it_will_only_get_media_in_the_specified_group()
     {
-        $media = factory(Media::class, 2)->create();
+        $defaultMedia = factory(Media::class)->create();
+        $galleryMedia = factory(Media::class)->create();
 
         // Attach media to the default group...
-        $this->subject->attachMedia($defaultMediaId = $media->first()->id);
+        $this->subject->attachMedia($defaultMedia->id);
 
         // Attach media to the gallery group...
-        $this->subject->attachMedia($galleryMediaId = $media->last()->id, 'gallery');
+        $this->subject->attachMedia($galleryMedia->id, 'gallery');
 
-        $defaultMedia = $this->subject->getMedia();
-        $galleryMedia = $this->subject->getMedia('gallery');
+        $allDefaultMedia = $this->subject->getMedia();
+        $allGalleryMedia = $this->subject->getMedia('gallery');
         $firstGalleryMedia = $this->subject->getFirstMedia('gallery');
 
-        $this->assertCount(1, $defaultMedia);
-        $this->assertEquals($defaultMediaId, $defaultMedia->first()->id);
+        $this->assertCount(1, $allDefaultMedia);
+        $this->assertEquals($defaultMedia->id, $allDefaultMedia->first()->id);
 
-        $this->assertCount(1, $galleryMedia);
-        $this->assertEquals($galleryMediaId, $galleryMedia->first()->id);
-        $this->assertEquals($galleryMediaId, $firstGalleryMedia->id);
-
+        $this->assertCount(1, $allGalleryMedia);
+        $this->assertEquals($galleryMedia->id, $allGalleryMedia->first()->id);
+        $this->assertEquals($galleryMedia->id, $firstGalleryMedia->id);
     }
 
     /** @test */
@@ -213,49 +213,54 @@ class HasMediaTest extends TestCase
 
         $this->subject->attachMedia($media, 'gallery');
 
-        $this->assertTrue($this->subject->HasMedia('gallery'));
+        $this->assertTrue($this->subject->hasMedia('gallery'));
         $this->assertFalse($this->subject->hasMedia());
     }
 
     /** @test */
     public function it_can_detach_all_the_media()
     {
-        $media = factory(Media::class, 2)->create();
+        $mediaOne = factory(Media::class)->create();
+        $mediaTwo = factory(Media::class)->create();
 
-        $this->subject->attachMedia($media->first());
-        $this->subject->attachMedia($media->last(), 'gallery');
+        $this->subject->attachMedia($mediaOne);
+        $this->subject->attachMedia($mediaTwo, 'gallery');
 
         $this->subject->detachMedia();
 
-        $this->assertEmpty($this->subject->media()->get());
+        $this->assertFalse($this->subject->media()->exists());
     }
 
     /** @test */
     public function it_can_detach_specific_media_items()
     {
-        $media = factory(Media::class, 2)->create();
+        $mediaOne = factory(Media::class)->create();
+        $mediaTwo = factory(Media::class)->create();
 
-        $this->subject->attachMedia($media);
+        $this->subject->attachMedia([
+            $mediaOne->id, $mediaTwo->id
+        ]);
 
-        $this->subject->detachMedia($media->first());
+        $this->subject->detachMedia($mediaOne);
 
         $this->assertCount(1, $this->subject->getMedia());
-        $this->assertEquals($media->last()->id, $this->subject->getFirstMedia()->id);
+        $this->assertEquals($mediaTwo->id, $this->subject->getFirstMedia()->id);
     }
 
     /** @test */
     public function it_can_detach_all_the_media_in_a_specified_group()
     {
-        $media = factory(Media::class, 2)->create();
+        $mediaOne = factory(Media::class)->create();
+        $mediaTwo = factory(Media::class)->create();
 
-        $this->subject->attachMedia($media->first(), 'one');
-        $this->subject->attachMedia($media->last(), 'two');
+        $this->subject->attachMedia($mediaOne, 'one');
+        $this->subject->attachMedia($mediaTwo, 'two');
 
         $this->subject->clearMediaGroup('one');
 
         $this->assertFalse($this->subject->hasMedia('one'));
         $this->assertCount(1, $this->subject->getMedia('two'));
-        $this->assertEquals($media->last()->id, $this->subject->getFirstMedia('two')->id);
+        $this->assertEquals($mediaTwo->id, $this->subject->getFirstMedia('two')->id);
     }
 
     /** @test */
