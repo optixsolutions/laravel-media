@@ -4,7 +4,7 @@ namespace Optix\Media\Tests;
 
 use Optix\Media\Models\Media;
 use Illuminate\Support\Facades\Queue;
-use Optix\Media\Tests\Models\TestModel;
+use Optix\Media\Tests\Models\Subject;
 use Optix\Media\Jobs\PerformConversions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -14,20 +14,19 @@ class HasMediaTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @var TestModel */
-    protected $testModel;
+    protected $subject;
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->testModel = TestModel::create();
+        $this->subject = Subject::create();
     }
 
     /** @test */
     public function it_registers_the_media_relationship()
     {
-        $this->assertInstanceOf(MorphToMany::class, $this->testModel->media());
+        $this->assertInstanceOf(MorphToMany::class, $this->subject->media());
     }
 
     /** @test */
@@ -35,9 +34,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $attachedMedia = $this->testModel->media()->first();
+        $attachedMedia = $this->subject->media()->first();
 
         $this->assertEquals($attachedMedia->id, $media->id);
         $this->assertEquals('default', $attachedMedia->pivot->group);
@@ -48,9 +47,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, $group = 'custom');
+        $this->subject->attachMedia($media, $group = 'custom');
 
-        $attachedMedia = $this->testModel->media()->first();
+        $attachedMedia = $this->subject->media()->first();
 
         $this->assertEquals($media->id, $attachedMedia->id);
         $this->assertEquals($group, $attachedMedia->pivot->group);
@@ -61,9 +60,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $attachedMedia = $this->testModel->media()->get();
+        $attachedMedia = $this->subject->media()->get();
 
         $this->assertCount(2, $attachedMedia);
         $this->assertEmpty($media->diff($attachedMedia));
@@ -80,9 +79,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $defaultMedia = $this->testModel->getMedia();
+        $defaultMedia = $this->subject->getMedia();
 
         $this->assertEquals(2, $defaultMedia->count());
         $this->assertEmpty($media->diff($defaultMedia));
@@ -93,9 +92,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media, 'gallery');
+        $this->subject->attachMedia($media, 'gallery');
 
-        $galleryMedia = $this->testModel->getMedia('gallery');
+        $galleryMedia = $this->subject->getMedia('gallery');
 
         $this->assertEquals(2, $galleryMedia->count());
         $this->assertEmpty($media->diff($galleryMedia));
@@ -104,7 +103,7 @@ class HasMediaTest extends TestCase
     /** @test */
     public function it_can_handle_attempts_to_get_media_from_an_empty_group()
     {
-        $media = $this->testModel->getMedia();
+        $media = $this->subject->getMedia();
 
         $this->assertInstanceOf(EloquentCollection::class, $media);
         $this->assertTrue($media->isEmpty());
@@ -115,9 +114,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $firstMedia = $this->testModel->getFirstMedia();
+        $firstMedia = $this->subject->getFirstMedia();
 
         $this->assertInstanceOf(Media::class, $firstMedia);
         $this->assertEquals($media->id, $firstMedia->id);
@@ -128,9 +127,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, 'gallery');
+        $this->subject->attachMedia($media, 'gallery');
 
-        $firstMedia = $this->testModel->getFirstMedia('gallery');
+        $firstMedia = $this->subject->getFirstMedia('gallery');
 
         $this->assertInstanceOf(Media::class, $firstMedia);
         $this->assertEquals($media->id, $firstMedia->id);
@@ -142,14 +141,14 @@ class HasMediaTest extends TestCase
         $media = factory(Media::class, 2)->create();
 
         // Attach media to the default group...
-        $this->testModel->attachMedia($defaultMediaId = $media->first()->id);
+        $this->subject->attachMedia($defaultMediaId = $media->first()->id);
 
         // Attach media to the gallery group...
-        $this->testModel->attachMedia($galleryMediaId = $media->last()->id, 'gallery');
+        $this->subject->attachMedia($galleryMediaId = $media->last()->id, 'gallery');
 
-        $defaultMedia = $this->testModel->getMedia();
-        $galleryMedia = $this->testModel->getMedia('gallery');
-        $firstGalleryMedia = $this->testModel->getFirstMedia('gallery');
+        $defaultMedia = $this->subject->getMedia();
+        $galleryMedia = $this->subject->getMedia('gallery');
+        $firstGalleryMedia = $this->subject->getFirstMedia('gallery');
 
         $this->assertCount(1, $defaultMedia);
         $this->assertEquals($defaultMediaId, $defaultMedia->first()->id);
@@ -165,9 +164,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $url = $this->testModel->getFirstMediaUrl();
+        $url = $this->subject->getFirstMediaUrl();
 
         $this->assertEquals($media->getUrl(), $url);
     }
@@ -177,9 +176,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, 'gallery');
+        $this->subject->attachMedia($media, 'gallery');
 
-        $url = $this->testModel->getFirstMediaUrl('gallery');
+        $url = $this->subject->getFirstMediaUrl('gallery');
 
         $this->assertEquals($media->getUrl(), $url);
     }
@@ -189,9 +188,9 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, 'gallery');
+        $this->subject->attachMedia($media, 'gallery');
 
-        $url = $this->testModel->getFirstMediaUrl('gallery', 'conversion-name');
+        $url = $this->subject->getFirstMediaUrl('gallery', 'conversion-name');
 
         $this->assertEquals($media->getUrl('conversion-name'), $url);
     }
@@ -201,10 +200,10 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $this->assertTrue($this->testModel->hasMedia());
-        $this->assertFalse($this->testModel->hasMedia('empty'));
+        $this->assertTrue($this->subject->hasMedia());
+        $this->assertFalse($this->subject->hasMedia('empty'));
     }
 
     /** @test */
@@ -212,10 +211,10 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class)->create();
 
-        $this->testModel->attachMedia($media, 'gallery');
+        $this->subject->attachMedia($media, 'gallery');
 
-        $this->assertTrue($this->testModel->HasMedia('gallery'));
-        $this->assertFalse($this->testModel->hasMedia());
+        $this->assertTrue($this->subject->HasMedia('gallery'));
+        $this->assertFalse($this->subject->hasMedia());
     }
 
     /** @test */
@@ -223,12 +222,12 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media->first());
-        $this->testModel->attachMedia($media->last(), 'gallery');
+        $this->subject->attachMedia($media->first());
+        $this->subject->attachMedia($media->last(), 'gallery');
 
-        $this->testModel->detachMedia();
+        $this->subject->detachMedia();
 
-        $this->assertEmpty($this->testModel->media()->get());
+        $this->assertEmpty($this->subject->media()->get());
     }
 
     /** @test */
@@ -236,12 +235,12 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media);
+        $this->subject->attachMedia($media);
 
-        $this->testModel->detachMedia($media->first());
+        $this->subject->detachMedia($media->first());
 
-        $this->assertCount(1, $this->testModel->getMedia());
-        $this->assertEquals($media->last()->id, $this->testModel->getFirstMedia()->id);
+        $this->assertCount(1, $this->subject->getMedia());
+        $this->assertEquals($media->last()->id, $this->subject->getFirstMedia()->id);
     }
 
     /** @test */
@@ -249,27 +248,24 @@ class HasMediaTest extends TestCase
     {
         $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($media->first(), 'one');
-        $this->testModel->attachMedia($media->last(), 'two');
+        $this->subject->attachMedia($media->first(), 'one');
+        $this->subject->attachMedia($media->last(), 'two');
 
-        $this->testModel->clearMediaGroup('one');
+        $this->subject->clearMediaGroup('one');
 
-        $this->assertFalse($this->testModel->hasMedia('one'));
-        $this->assertCount(1, $this->testModel->getMedia('two'));
-        $this->assertEquals($media->last()->id, $this->testModel->getFirstMedia('two')->id);
+        $this->assertFalse($this->subject->hasMedia('one'));
+        $this->assertCount(1, $this->subject->getMedia('two'));
+        $this->assertEquals($media->last()->id, $this->subject->getFirstMedia('two')->id);
     }
 
     /** @test */
-    public function it_will_dispatch_conversions_when_media_attached()
+    public function it_will_perform_conversions_when_media_is_attached()
     {
         Queue::fake();
-        /** @var EloquentCollection<Media> $mediaCollection */
-        $mediaCollection = factory(Media::class, 2)->create();
 
-        $mediaGroup = $this->testModel->addMediaGroup('group1');
-        $mediaGroup->registerConversions([ function () {} ]);
+        $media = factory(Media::class, 2)->create();
 
-        $this->testModel->attachMedia($mediaCollection, 'group1');
+        $this->subject->attachMedia($media, 'converted-images');
 
         Queue::assertPushed(PerformConversions::class, 2);
     }

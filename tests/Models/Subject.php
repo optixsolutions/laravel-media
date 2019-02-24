@@ -5,13 +5,13 @@ namespace Optix\Media\Tests\Models;
 use Optix\Media\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 
-class TestModel extends Model
+class Subject extends Model
 {
     use HasMedia;
 
     public function registerMediaGroups()
     {
-        $this->addMediaGroup('convert-images')
-             ->registerConversions('conversion');
+        $this->addMediaGroup('converted-images')
+             ->performConversions('conversion');
     }
 }

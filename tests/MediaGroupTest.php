@@ -20,7 +20,7 @@ class MediaGroupTest extends TestCase
             return self::KNOWN_VALUE;
         };
 
-        $mediaGroup->registerConversions($conversion1, $conversion2);
+        $mediaGroup->performConversions($conversion1, $conversion2);
 
         $registeredConversions = $mediaGroup->getConversions();
 
