@@ -16,6 +16,16 @@ class Media extends Model
         return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
+    public function getTypeAttribute()
+    {
+        return str_before($this->mime_type, '/') ?? null;
+    }
+
+    public function isOfType(string $type)
+    {
+        return $this->type === $type;
+    }
+
     public function getUrl(string $conversion = '')
     {
         return $this->filesystem()->url($this->getPath($conversion));

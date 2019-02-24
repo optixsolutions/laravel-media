@@ -20,6 +20,10 @@ class ImageManipulator
 
     public function manipulate(Media $media, array $conversions, $onlyIfMissing = true)
     {
+        if (! $media->isOfType('image')) {
+            return;
+        }
+
         foreach ($conversions as $conversion) {
             $path = $media->getPath($conversion);
 
