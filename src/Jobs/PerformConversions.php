@@ -31,4 +31,14 @@ class PerformConversions implements ShouldQueue
             $this->media, $this->conversions
         );
     }
+
+    public function getMedia()
+    {
+        return $this->media;
+    }
+
+    public function getConversions()
+    {
+        return $this->conversions;
+    }
 }

@@ -40,23 +40,29 @@ trait HasMedia
         return $media->getUrl($conversion);
     }
 
-    public function attachMedia($media, string $group = 'default')
+    public function attachMedia($media, string $group = 'default', array $conversions = [])
     {
         $this->registerMediaGroups();
 
         $ids = $this->parseMediaIds($media);
 
-        if ($mediaGroup = $this->getMediaGroup($group)) {
+        $mediaGroup = $this->getMediaGroup($group);
+
+        if ($mediaGroup && $mediaGroup->hasConversions()) {
+            $conversions = array_merge(
+                $conversions, $mediaGroup->getConversions()
+            );
+        }
+
+        if (! empty($conversions)) {
             $model = config('media.model');
 
             $media = $model::findMany($ids);
 
-            $media->each(function ($media) use ($mediaGroup) {
-                if ($mediaGroup->hasConversions()) {
-                    PerformConversions::dispatch(
-                        $media, $mediaGroup->getConversions()
-                    );
-                }
+            $media->each(function ($media) use ($conversions) {
+                PerformConversions::dispatch(
+                    $media, $conversions
+                );
             });
         }
 

@@ -75,15 +75,47 @@ class HasMediaTest extends TestCase
     }
 
     /** @test */
-    public function it_will_perform_the_registered_conversions_when_media_is_attached()
+    public function it_will_perform_the_given_conversions_when_media_is_attached()
     {
         Queue::fake();
 
-        $media = factory(Media::class, 2)->create();
+        $media = factory(Media::class)->create();
 
-        $this->subject->attachMedia($media, 'converted-images');
+        $conversions = ['conversion'];
 
-        Queue::assertPushed(PerformConversions::class, 2);
+        $this->subject->attachMedia($media, 'default', $conversions);
+
+        Queue::assertPushed(
+            PerformConversions::class, function ($job) use ($media, $conversions) {
+                return (
+                    $media->is($job->getMedia())
+                    && empty(array_diff($conversions, $job->getConversions()))
+                );
+            }
+        );
+    }
+
+    /** @test */
+    public function it_will_perform_the_conversions_registered_by_the_group_when_media_is_attached()
+    {
+        Queue::fake();
+
+        $media = factory(Media::class)->create();
+
+        $this->subject->attachMedia($media, $group = 'converted-images');
+
+        Queue::assertPushed(
+            PerformConversions::class, function ($job) use ($media, $group) {
+                $conversions = $this->subject
+                    ->getMediaGroup($group)
+                    ->getConversions();
+
+                return (
+                    $media->is($job->getMedia())
+                    && empty(array_diff($conversions, $job->getConversions()))
+                );
+            }
+        );
     }
 
     /** @test */
