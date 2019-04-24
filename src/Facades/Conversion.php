@@ -2,7 +2,7 @@
 
 namespace Optix\Media\Facades;
 
-use Optix\Media\ConversionManager;
+use Optix\Media\ConversionRegistry;
 use Illuminate\Support\Facades\Facade;
 
 class Conversion extends Facade
@@ -14,6 +14,6 @@ class Conversion extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return ConversionManager::class;
+        return ConversionRegistry::class;
     }
 }

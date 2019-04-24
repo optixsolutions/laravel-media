@@ -29,6 +29,6 @@ class MediaServiceProvider extends ServiceProvider
             __DIR__ . '/../config/media.php', 'media'
         );
 
-        $this->app->singleton(ConversionManager::class);
+        $this->app->singleton(ConversionRegistry::class);
     }
 }

@@ -7,13 +7,13 @@ use Intervention\Image\ImageManager;
 
 class ImageManipulator
 {
-    protected $conversionManager;
+    protected $conversionRegistry;
 
     protected $imageManager;
 
-    public function __construct(ConversionManager $conversionManager, ImageManager $imageManager)
+    public function __construct(ConversionRegistry $conversionRegistry, ImageManager $imageManager)
     {
-        $this->conversionManager = $conversionManager;
+        $this->conversionRegistry = $conversionRegistry;
 
         $this->imageManager = $imageManager;
     }
@@ -31,7 +31,7 @@ class ImageManipulator
                 continue;
             }
 
-            $converter = $this->conversionManager->get($conversion);
+            $converter = $this->conversionRegistry->get($conversion);
 
             $image = $converter($this->imageManager->make($media->getFullPath()));
 

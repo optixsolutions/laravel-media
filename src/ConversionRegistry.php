@@ -4,7 +4,7 @@ namespace Optix\Media;
 
 use Optix\Media\Exceptions\InvalidConversion;
 
-class ConversionManager
+class ConversionRegistry
 {
     protected $conversions = [];
 

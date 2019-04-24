@@ -6,7 +6,7 @@ use Mockery;
 use Intervention\Image\Image;
 use Optix\Media\Models\Media;
 use Optix\Media\ImageManipulator;
-use Optix\Media\ConversionManager;
+use Optix\Media\ConversionRegistry;
 use Intervention\Image\ImageManager;
 use Illuminate\Filesystem\Filesystem;
 use Optix\Media\Exceptions\InvalidConversion;
@@ -16,9 +16,9 @@ class ImageManipulatorTest extends TestCase
     /** @test */
     public function it_will_apply_registered_conversions()
     {
-        $conversionManager = new ConversionManager();
+        $conversionRegistry = new ConversionRegistry();
 
-        $conversionManager->register('resize', function (Image $image) {
+        $conversionRegistry->register('resize', function (Image $image) {
             return $image->resize(64);
         });
 
@@ -33,7 +33,7 @@ class ImageManipulatorTest extends TestCase
         $imageManager = Mockery::mock(ImageManager::class);
         $imageManager->shouldReceive('make')->once()->andReturn($image);
 
-        $manipulator = new ImageManipulator($conversionManager, $imageManager);
+        $manipulator = new ImageManipulator($conversionRegistry, $imageManager);
 
         $media = Mockery::mock(Media::class)->makePartial();
         $media->file_name = 'file-name.png';
@@ -53,9 +53,9 @@ class ImageManipulatorTest extends TestCase
     /** @test */
     public function it_will_only_apply_conversions_to_an_image()
     {
-        $conversionManager = new ConversionManager();
+        $conversionRegistry = new ConversionRegistry();
 
-        $conversionManager->register('resize', function ($image) {
+        $conversionRegistry->register('resize', function ($image) {
             return $image->resize(64);
         });
 
@@ -64,7 +64,7 @@ class ImageManipulatorTest extends TestCase
         // Assert that the conversion was not applied...
         $imageManager->shouldNotReceive('make');
 
-        $manipulator = new ImageManipulator($conversionManager, $imageManager);
+        $manipulator = new ImageManipulator($conversionRegistry, $imageManager);
 
         $media = new Media(['mime_type' => 'text/html']);
 
@@ -76,14 +76,14 @@ class ImageManipulatorTest extends TestCase
     {
         $this->expectException(InvalidConversion::class);
 
-        $conversionManager = new ConversionManager();
+        $conversionRegistry = new ConversionRegistry();
 
         $imageManager = Mockery::mock(ImageManager::class);
 
         // Assert that the conversion was not applied...
         $imageManager->shouldNotReceive('make');
 
-        $manipulator = new ImageManipulator($conversionManager, $imageManager);
+        $manipulator = new ImageManipulator($conversionRegistry, $imageManager);
 
         $media = new Media(['mime_type' => 'image/png']);
 
@@ -93,9 +93,9 @@ class ImageManipulatorTest extends TestCase
     /** @test */
     public function it_will_skip_conversions_if_the_converted_image_already_exists()
     {
-        $conversionManager = new ConversionManager();
+        $conversionRegistry = new ConversionRegistry();
 
-        $conversionManager->register('resize', function (Image $image) use (&$conversionApplied) {
+        $conversionRegistry->register('resize', function (Image $image) use (&$conversionApplied) {
             return $image;
         });
 
@@ -104,7 +104,7 @@ class ImageManipulatorTest extends TestCase
         // Assert that the conversion was not applied...
         $imageManager->shouldNotReceive('make');
 
-        $manipulator = new ImageManipulator($conversionManager, $imageManager);
+        $manipulator = new ImageManipulator($conversionRegistry, $imageManager);
 
         $media = Mockery::mock(Media::class)->makePartial();
         $media->file_name = 'file-name.png';
