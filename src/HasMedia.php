@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 trait HasMedia
 {
     /**
-     * @var array
+     * @var MediaGroup[]
      */
     protected $mediaGroups = [];
 
