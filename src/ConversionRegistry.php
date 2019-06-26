@@ -38,6 +38,8 @@ class ConversionRegistry
      *
      * @param  string  $name
      * @return mixed
+     *
+     * @throws InvalidConversion
      */
     public function get(string $name)
     {

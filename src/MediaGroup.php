@@ -12,7 +12,7 @@ class MediaGroup
     /**
      * Register the conversions to be performed when media is attached.
      *
-     * @param  mixed  ...$conversions
+     * @param  string  ...$conversions
      * @return $this
      */
     public function performConversions(...$conversions)
@@ -23,7 +23,7 @@ class MediaGroup
     }
 
     /**
-     * Determine if the group has any registered conversions.
+     * Determine if there are any registered conversions.
      *
      * @return bool
      */

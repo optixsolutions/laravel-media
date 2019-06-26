@@ -169,7 +169,7 @@ trait HasMedia
     }
 
     /**
-     * Detach all, or the specified media.
+     * Detach the specified media.
      *
      * @param  null  $media
      * @return void

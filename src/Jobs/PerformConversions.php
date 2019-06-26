@@ -14,10 +14,23 @@ class PerformConversions implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var Media
+     */
     protected $media;
 
+    /**
+     * @var array
+     */
     protected $conversions;
 
+    /**
+     * Create a new PerformConversions instance.
+     *
+     * @param  Media  $media
+     * @param  array  $conversions
+     * @return void
+     */
     public function __construct(Media $media, array $conversions)
     {
         $this->media = $media;
@@ -25,6 +38,11 @@ class PerformConversions implements ShouldQueue
         $this->conversions = $conversions;
     }
 
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
     public function handle()
     {
         app(ImageManipulator::class)->manipulate(
@@ -32,11 +50,17 @@ class PerformConversions implements ShouldQueue
         );
     }
 
+    /**
+     * @return Media
+     */
     public function getMedia()
     {
         return $this->media;
     }
 
+    /**
+     * @return array
+     */
     public function getConversions()
     {
         return $this->conversions;
