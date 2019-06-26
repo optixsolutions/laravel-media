@@ -6,6 +6,25 @@ use Illuminate\Support\ServiceProvider;
 
 class MediaServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/media.php', 'media'
+        );
+
+        $this->app->singleton(ConversionRegistry::class);
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
     public function boot()
     {
         // Migrations
@@ -21,14 +40,5 @@ class MediaServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/media.php' => config_path('media.php')
         ], 'config');
-    }
-
-    public function register()
-    {
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/media.php', 'media'
-        );
-
-        $this->app->singleton(ConversionRegistry::class);
     }
 }
