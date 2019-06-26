@@ -34,7 +34,7 @@ class ConversionRegistry
     }
 
     /**
-     * Get a registered conversion with the specified name.
+     * Get the conversion with the specified name.
      *
      * @param  string  $name
      * @return mixed
