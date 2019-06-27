@@ -9,7 +9,7 @@ class CreateMediaTable extends Migration
     public function up()
     {
         Schema::create('media', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('name');
             $table->string('file_name');
             $table->string('disk');
@@ -19,8 +19,8 @@ class CreateMediaTable extends Migration
         });
 
         Schema::create('mediables', function (Blueprint $table) {
-            $table->unsignedInteger('media_id')->index();
-            $table->unsignedInteger('mediable_id')->index();
+            $table->unsignedBigInteger('media_id')->index();
+            $table->unsignedBigInteger('mediable_id')->index();
             $table->string('mediable_type');
             $table->string('group');
 
