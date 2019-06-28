@@ -30,7 +30,7 @@ There are a few key concepts that should be considered before continuing:
 * Media is uploaded as its own entity. It does not belong to another model in the system when it's created, so it can
   be managed independently (which makes it the perfect engine for a media manager).
   
-* Media must be "attached" to a model for an association to be made.
+* Media must be attached to a model for an association to be made.
 
 * Media items are bound to "groups". This makes it easy to associate multiple types of media to a model. For
   example, a model might have an "images" group and a "documents" group.
@@ -185,7 +185,7 @@ class Post extends Model
 ```
 
 Now when a media item is attached to the "gallery" group, a converted image will be generated. You can get the url of
-the converted image as demonstrated below.
+the converted image as demonstrated below:
 
 ```php
 // The thumbnail of the first image in the gallery group
