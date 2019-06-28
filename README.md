@@ -2,9 +2,9 @@
 
 An easy solution to attach files to your eloquent models, with image manipulation built in!
 
-![Packagist Version](https://img.shields.io/packagist/v/optix/media.svg)
-![Monthly Downloads](https://travis-ci.org/optixsolutions/laravel-media.svg?branch=master)
-![GitHub](https://img.shields.io/github/license/optixsolutions/laravel-media.svg)
+[![Packagist Version](https://img.shields.io/packagist/v/optix/media.svg)](https://packagist.org/packages/optix/media)
+[![Build Status](https://travis-ci.org/optixsolutions/laravel-media.svg?branch=master)](https://travis-ci.org/optix/media)
+[![License](https://img.shields.io/github/license/optixsolutions/laravel-media.svg)](https://github.com/optixsolutions/laravel-media/blob/master/LICENSE.md)
 
 ## Installation
 
@@ -32,7 +32,7 @@ There are a few key concepts that should be considered before continuing:
   
 * Media must be "attached" to a model for an association to be made.
 
-* Media items are bound to "groups". This makes it easy to associate multiple different types of media to a model. For
+* Media items are bound to "groups". This makes it easy to associate multiple types of media to a model. For
   example, a model might have an "images" group and a "documents" group.
   
 * You can manipulate images using conversions. You can specify conversions to be performed when a media item is
