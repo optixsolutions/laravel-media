@@ -33,7 +33,7 @@ There are a few key concepts that should be considered before continuing:
 * Media must be "attached" to a model for an association to be made.
 
 * Media items are bound to "groups". This makes it easy to associate multiple different types of media to a model. For
-  example, a Post might have an "images" group and a "documents" group.
+  example, a model might have an "images" group and a "documents" group.
   
 * You can manipulate images using conversions. You can specify conversions to be performed when a media item is
   associated to a model. For example, you can register a "thumbnail" conversion to run when images are attached to a
@@ -187,13 +187,28 @@ class Post extends Model
 Now when a media item is attached to the "gallery" group, you'll be able to retrieve the converted image like so:
 
 ```php
-// Get the thumb of the first image in the gallery group
+// The thumbnail of the first image in the gallery group
 $post->getFirstMediaUrl('gallery', 'thumb');
 ```
 
-## Todo
+## Why use this package?
 
-Feature comparison table!
+There are already packages that exist to solve a similar problem to the one that this package was built to achieve.
+
+The most popular of which are:
+
+* [Spatie's Laravel MediaLibrary](https://github.com/spatie/laravel-medialibrary)
+* [Plank's Laravel Mediable](https://github.com/plank/laravel-mediable)
+
+There are a few key differences between this package and the ones listed above. Our package was built to power media
+managers, and make it easy to perform image manipulations. This is better represented by the comparison table below:
+
+| Comparison                      | Spatie              | Plank        | Optix                |
+|---------------------------------|---------------------|--------------|----------------------|
+| **Relationship type**           | One to many         | Many to many | Many to many         |
+| **Provides image manipulation** | Yes                 | No           | Yes                  |
+| **Definition of manipulations** | Specific to a model | -            | Global registry      |
+| **Manipulation library**        | `spatie/image`      | -            | `intervention/image` |
 
 ## License
 
