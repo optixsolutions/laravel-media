@@ -1,6 +1,6 @@
 # Laravel Media
 
-An easy solution to associate media with your eloquent models, with image manipulation built in!
+An easy solution to attach files to your eloquent models, with image manipulation built in!
 
 ![Packagist Version](https://img.shields.io/packagist/v/optix/media.svg)
 ![Monthly Downloads](https://travis-ci.org/optixsolutions/laravel-media.svg?branch=master)
@@ -20,7 +20,7 @@ Once installed, you should publish the provided assets to create the necessary m
 php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvider"
 ```
 
-## Key Concepts
+## Key concepts
 
 There are a few key concepts that should be considered before continuing:
 
@@ -43,32 +43,33 @@ There are a few key concepts that should be considered before continuing:
 * Conversions are registered globally. This means that they can be reused across your application, i.e a Post
   and a User can have the same sized thumbnail without having to register it twice.
 
-# Todo
-
 ## Usage
 
-### Uploading media
+### Upload media
 
-You can use the `Optix\Media\MediaUploader` class to handle media uploads.
+You should use the `Optix\Media\MediaUploader` class to handle file uploads.
 
-By default, this class uploads files to the disk specified in the media config file.
-It stores them as a sanitised version of their original file name,
-and creates a media record in the database with the file's details.
+By default, this class uploads files to the disk specified in the media config. It saves them as a sanitised
+version of their original file name, and creates a media record in the database with the file's details.
 
 It's also possible to customise certain properties of the file before it's uploaded.
 
 ```php
-$file = $request->input('file');
+$file = $request->file('file');
 
-// Default usage...
+// Default usage
 $media = MediaUploader::fromFile($file)->upload();
 
-// Custom usage...
+// Custom usage
 $media = MediaUploader::fromFile($file)
-    ->useFileName('custom-file-name.jpg')
-    ->useName('Custom name')
+    ->useFileName('custom-file-name.jpeg')
+    ->useName('Custom media name')
     ->upload();
 ```
+
+# Todo
+
+---
 
 ### Attaching media
 
