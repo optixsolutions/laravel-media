@@ -20,27 +20,32 @@ Once installed, you should publish the provided assets to create the necessary m
 php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvider"
 ```
 
-## Usage
+## Key Concepts
 
-There are a few core concepts that should be considered before continuing:
+There are a few key concepts that should be considered before continuing:
 
-* Media can be **any** type of file, from a `png` to a `zip` file. You should
+* Media can be any type of file, from a jpeg to a zip file. You should
   specify any file restrictions in your application's validation logic before
   you attempt to upload a file.
 
-* Media is uploaded as its own entity. It *does not* belong to another model in the system when it's created,
+* Media is uploaded as its own entity. It does not belong to another model in the system when it's created,
   so it can be managed independently (which makes it the perfect engine for a media manager).
   
 * Media must be "attached" to a model for an association to be made.
 
-* Media items are bound to "groups", which makes it easy to associate multiple different types of media
-  to a model. For example, a `Post` might have an "images" group and a "documents" group.
+* Media items are bound to "groups". This makes it easy to associate multiple different types of media
+  to a model. For example, a Post might have an "images" group and a "documents" group.
   
-* **Write about conversions!**
+* You can manipulate images using conversions. You can specify conversions to be performed when a media
+  item is associated to a model. For example, you can register a "thumbnail" conversion to run when images
+  are attached to a model's "gallery" group.
 
----
+* Conversions are registered globally. This means that they can be reused across your application, i.e a Post
+  and a User can have the same sized thumbnail without having to register it twice.
 
-# TODO
+# Todo
+
+## Usage
 
 ### Uploading media
 
