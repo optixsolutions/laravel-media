@@ -3,7 +3,7 @@
 An easy solution to attach files to your eloquent models, with image manipulation built in!
 
 [![Packagist Version](https://img.shields.io/packagist/v/optix/media.svg)](https://packagist.org/packages/optix/media)
-[![Build Status](https://travis-ci.org/optixsolutions/laravel-media.svg?branch=master)](https://travis-ci.org/optix/media)
+[![Build Status](https://travis-ci.org/optixsolutions/laravel-media.svg?branch=master)](https://travis-ci.org/optixsolutions/laravel-media)
 [![License](https://img.shields.io/github/license/optixsolutions/laravel-media.svg)](https://github.com/optixsolutions/laravel-media/blob/master/LICENSE.md)
 
 ## Installation
