@@ -24,24 +24,23 @@ php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvide
 
 There are a few key concepts that should be considered before continuing:
 
-* Media can be any type of file, from a jpeg to a zip file. You should
-  specify any file restrictions in your application's validation logic before
-  you attempt to upload a file.
+* Media can be any type of file, from a jpeg to a zip file. You should specify any file restrictions in your
+  application's validation logic before you attempt to upload a file.
 
-* Media is uploaded as its own entity. It does not belong to another model in the system when it's created,
-  so it can be managed independently (which makes it the perfect engine for a media manager).
+* Media is uploaded as its own entity. It does not belong to another model in the system when it's created, so it can
+  be managed independently (which makes it the perfect engine for a media manager).
   
 * Media must be "attached" to a model for an association to be made.
 
-* Media items are bound to "groups". This makes it easy to associate multiple different types of media
-  to a model. For example, a Post might have an "images" group and a "documents" group.
+* Media items are bound to "groups". This makes it easy to associate multiple different types of media to a model. For
+  example, a Post might have an "images" group and a "documents" group.
   
-* You can manipulate images using conversions. You can specify conversions to be performed when a media
-  item is associated to a model. For example, you can register a "thumbnail" conversion to run when images
-  are attached to a model's "gallery" group.
+* You can manipulate images using conversions. You can specify conversions to be performed when a media item is
+  associated to a model. For example, you can register a "thumbnail" conversion to run when images are attached to a
+  model's "gallery" group.
 
-* Conversions are registered globally. This means that they can be reused across your application, i.e a Post
-  and a User can have the same sized thumbnail without having to register it twice.
+* Conversions are registered globally. This means that they can be reused across your application, i.e a Post and a
+  User can have the same sized thumbnail without having to register it twice.
 
 ## Usage
 
@@ -49,7 +48,7 @@ There are a few key concepts that should be considered before continuing:
 
 You should use the `Optix\Media\MediaUploader` class to handle file uploads.
 
-By default, this class uploads files to the disk specified in the media config. It saves them as a sanitised
+By default, this class will update files to the disk specified in the media config. It saves them as a sanitised
 version of their original file name, and creates a media record in the database with the file's details.
 
 It's also possible to customise certain properties of the file before it's uploaded.
@@ -67,36 +66,34 @@ $media = MediaUploader::fromFile($file)
     ->upload();
 ```
 
-# Todo
+### Associate media with a model
 
----
-
-### Attaching media
-
-Firstly, include the `Optix\Media\HasMedia` trait on your subject model.
+In order to associate a media item with a model, you must first include the `Optix\Media\HasMedia` trait.
 
 ```php
-use Optix\Media\HasMedia;
-
 class Post extends Model
 {
     use HasMedia;
 }
 ```
 
-You can then attach media to your subject model like so...
+This trait will setup the relationship between your model and the media model. It's primary purpose is to provide a
+fluent api for attaching and retrieving media.
+
+Once included, you can attach media to the model as demonstrated below. The first parameter of the attach media method
+can either be a media model instance, an id, or an iterable list of models / ids.
 
 ```php
-$post = new Post::first();
+$post = Post::first();
 
-// To the 'default' group...
-$media = $post->attachMedia($media);
+// To the default group
+$post->attachMedia($media);
 
-// To a custom group...
-$media = $post->attachMedia($media, 'group');
+// To a custom group
+$post->attachMedia($media, 'custom-group');
 ```
 
-The `$media` parameter can either be an id, a media model, or an iterable group of ids / media models.
+# Todo
 
 You can detach media from the subject model like so...
 
