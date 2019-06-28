@@ -93,20 +93,31 @@ $post->attachMedia($media);
 $post->attachMedia($media, 'custom-group');
 ```
 
-# Todo
+### Disassociating media from a model
 
-You can detach media from the subject model like so...
+To disassociate media from a model, you should call the `detachMedia` method provided by the `HasMedia` trait.
 
 ```php
-// Detach all media...
+// Detach all the media
 $post->detachMedia();
 
-// Detach the specified media...
-$post->detachMedia([1, 2, 3]);
+// Detach the specified media
+$post->detachMedia($media);
 
-// Detach all media in the specified group...
-$post->clearMediaGroup('group');
+// Detach all the media in a group
+$post->clearMediaGroup('your-group');
+``` 
+
+If you want to delete a media item, you should do it the same way you would for any other model in your application.
+
+```php
+Media::first()->delete();
 ```
+
+Doing so will delete the file from your filesystem, and also remove any associations between the media item and your
+application's models.
+
+# Todo
 
 ### Retrieving media
 
