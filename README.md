@@ -93,7 +93,7 @@ $post->attachMedia($media);
 $post->attachMedia($media, 'custom-group');
 ```
 
-### Disassociating media from a model
+### Disassociate media from a model
 
 To disassociate media from a model, you should call the `detachMedia` method provided by the `HasMedia` trait.
 
@@ -117,7 +117,7 @@ Media::first()->delete();
 Doing so will delete the file from your filesystem, and also remove any association between the media item and your
 application's models.
 
-### Retrieving media
+### Retrieve media
 
 Another feature of the `HasMedia` trait is the ability to retrieve media.
 
@@ -139,15 +139,19 @@ As well as retrieve media items, you can also retrieve attributes of the media m
 
 ```php
 // Url of the first media item in the default group
-$post->getFirstMediaUrl(); // Same as: $media->getUrl();
+$post->getFirstMediaUrl();
 
 // Url of the first media item in a custom group
-$post->getFirstMediaUrl('custom-group'); // Same as: $media->getUrl('custom-group');
+$post->getFirstMediaUrl('custom-group');
 ```
 
-# Todo
+### Manipulate Images
 
-### Image manipulations
+This package also provides a fluent api to manipulate images. You can specify a model to perform "conversions" when
+media is attached to a group. It uses the familiar `intervention/image` library under the hood, so images can be
+manipulated using all the package's provided options.
+
+To get started, you should first register a conversion in one of your application's service providers:
 
 ```php
 use Intervention\Image\Image;
@@ -164,6 +168,9 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
+Once you've registered a conversion, you should configure a media group to perform the conversion when media is
+attached to your model.
+
 ```php
 class Post extends Model
 {
@@ -171,17 +178,22 @@ class Post extends Model
     
     public function registerMediaGroups()
     {
-        $this->addMediaGroup('group')
+        $this->addMediaGroup('gallery')
              ->performConversions('thumb');
     }
 }
 ```
 
-```php
-$post = Post::first();
+Now when a media item is attached to the "gallery" group, you'll be able to retrieve the converted image like so:
 
-$url = $post->getFirstMediaUrl('group', 'thumb');
+```php
+// Get the thumb of the first image in the gallery group
+$post->getFirstMediaUrl('gallery', 'thumb');
 ```
+
+## Todo
+
+Feature comparison table!
 
 ## License
 
