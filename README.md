@@ -51,7 +51,7 @@ You should use the `Optix\Media\MediaUploader` class to handle file uploads.
 By default, this class will update files to the disk specified in the media config. It saves them as a sanitised
 version of their original file name, and creates a media record in the database with the file's details.
 
-It's also possible to customise certain properties of the file before it's uploaded.
+You can also customise certain properties of the file before it's uploaded.
 
 ```php
 $file = $request->file('file');
@@ -147,9 +147,9 @@ $post->getFirstMediaUrl('custom-group');
 
 ### Manipulate Images
 
-This package also provides a fluent api to manipulate images. You can specify a model to perform "conversions" when
+This package provides a fluent api to manipulate images. You can specify a model to perform "conversions" when
 media is attached to a group. It uses the familiar `intervention/image` library under the hood, so images can be
-manipulated using all the package's provided options.
+manipulated using all of the library's provided options.
 
 To get started, you should first register a conversion in one of your application's service providers:
 
@@ -184,7 +184,8 @@ class Post extends Model
 }
 ```
 
-Now when a media item is attached to the "gallery" group, you'll be able to retrieve the converted image like so:
+Now when a media item is attached to the "gallery" group, a converted image will be generated. You can get the url of
+the converted image as demonstrated below.
 
 ```php
 // The thumbnail of the first image in the gallery group
