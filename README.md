@@ -114,20 +114,38 @@ If you want to delete a media item, you should do it the same way you would for 
 Media::first()->delete();
 ```
 
-Doing so will delete the file from your filesystem, and also remove any associations between the media item and your
+Doing so will delete the file from your filesystem, and also remove any association between the media item and your
 application's models.
-
-# Todo
 
 ### Retrieving media
 
+Another feature of the `HasMedia` trait is the ability to retrieve media.
+
 ```php
-$allMedia = $post->getMedia('group');
+// All media in the default group
+$post->getMedia();
 
-$media = $post->getFirstMedia('group');
+// All media in a custom group
+$post->getMedia('custom-group');
 
-$url = $media->getUrl('group'); // $post->getFirstMediaUrl('group');
+// First media item in the default group 
+$post->getFirstMedia();
+
+// First media item in a custom group
+$post->getFirstMedia('custom-group');
 ```
+
+As well as retrieve media items, you can also retrieve attributes of the media model directly from your model.
+
+```php
+// Url of the first media item in the default group
+$post->getFirstMediaUrl(); // Same as: $media->getUrl();
+
+// Url of the first media item in a custom group
+$post->getFirstMediaUrl('custom-group'); // Same as: $media->getUrl('custom-group');
+```
+
+# Todo
 
 ### Image manipulations
 
