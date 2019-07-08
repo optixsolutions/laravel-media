@@ -11,14 +11,14 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
-        $this->withFactories(__DIR__ . '/database/factories');
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->withFactories(__DIR__.'/database/factories');
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            MediaServiceProvider::class
+            MediaServiceProvider::class,
         ];
     }
 
@@ -28,7 +28,7 @@ class TestCase extends BaseTestCase
         $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix' => ''
+            'prefix' => '',
         ]);
     }
 }

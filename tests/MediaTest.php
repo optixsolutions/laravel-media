@@ -53,7 +53,7 @@ class MediaTest extends TestCase
 
         $this->assertEquals('1/image.jpg', $media->getPath());
     }
-    
+
     /** @test */
     public function it_can_get_the_path_on_disk_to_a_converted_image()
     {
@@ -66,7 +66,7 @@ class MediaTest extends TestCase
             $media->getPath('thumbnail')
         );
     }
-    
+
     /** @test */
     public function it_can_get_the_full_path_to_the_file()
     {
@@ -81,7 +81,7 @@ class MediaTest extends TestCase
 
         $this->assertEquals('path', $media->getFullPath());
     }
-    
+
     /** @test */
     public function it_can_get_the_full_path_to_a_converted_image()
     {

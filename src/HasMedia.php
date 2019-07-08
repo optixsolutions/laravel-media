@@ -109,7 +109,7 @@ trait HasMedia
         }
 
         $this->media()->attach($ids, [
-            'group' => $group
+            'group' => $group,
         ]);
     }
 

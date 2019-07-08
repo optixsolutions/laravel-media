@@ -9,6 +9,6 @@ $factory->define(Media::class, function (Faker $faker) {
         'file_name' => 'file-name.png',
         'disk' => config('media.disk'),
         'mime_type' => 'image/png',
-        'size' => $faker->randomNumber(4)
+        'size' => $faker->randomNumber(4),
     ];
 });

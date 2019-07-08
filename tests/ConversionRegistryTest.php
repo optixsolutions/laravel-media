@@ -57,13 +57,14 @@ class ConversionRegistryTest extends TestCase
         $this->assertCount(1, $conversionRegistry->all());
         $this->assertEquals('two', $conversionRegistry->get('conversion')());
     }
-    
+
     /** @test */
     public function it_can_determine_if_a_conversion_has_been_registered()
     {
         $conversionRegistry = new ConversionRegistry();
 
-        $conversionRegistry->register('registered', function () {});
+        $conversionRegistry->register('registered', function () {
+        });
 
         $this->assertTrue($conversionRegistry->exists('registered'));
         $this->assertFalse($conversionRegistry->exists('unregistered'));
