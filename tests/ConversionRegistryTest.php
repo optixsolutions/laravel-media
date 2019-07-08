@@ -64,6 +64,7 @@ class ConversionRegistryTest extends TestCase
         $conversionRegistry = new ConversionRegistry();
 
         $conversionRegistry->register('registered', function () {
+            //
         });
 
         $this->assertTrue($conversionRegistry->exists('registered'));

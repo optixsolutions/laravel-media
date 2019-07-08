@@ -87,8 +87,7 @@ class HasMediaTest extends TestCase
 
         Queue::assertPushed(
             PerformConversions::class, function ($job) use ($media, $conversions) {
-                return
-                    $media->is($job->getMedia())
+                return $media->is($job->getMedia())
                     && empty(array_diff($conversions, $job->getConversions()));
             }
         );
@@ -109,8 +108,7 @@ class HasMediaTest extends TestCase
                     ->getMediaGroup($group)
                     ->getConversions();
 
-                return
-                    $media->is($job->getMedia())
+                return $media->is($job->getMedia())
                     && empty(array_diff($conversions, $job->getConversions()));
             }
         );
