@@ -63,7 +63,7 @@ class MediaUploaderTest extends TestCase
 
         $media = MediaUploader::fromFile($file)
             ->withAttributes([
-                'custom_attribute' => 'Custom attribute'
+                'custom_attribute' => 'Custom attribute',
             ])
             ->upload();
 

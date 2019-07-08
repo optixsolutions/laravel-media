@@ -14,7 +14,7 @@ class Media extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'file_name', 'disk', 'mime_type', 'size'
+        'name', 'file_name', 'disk', 'mime_type', 'size',
     ];
 
     /**
@@ -81,10 +81,10 @@ class Media extends Model
         $directory = $this->getDirectory();
 
         if ($conversion) {
-            $directory .= '/conversions/' . $conversion;
+            $directory .= '/conversions/'.$conversion;
         }
 
-        return $directory . '/' . $this->file_name;
+        return $directory.'/'.$this->file_name;
     }
 
     /**

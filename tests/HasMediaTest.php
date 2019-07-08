@@ -87,10 +87,8 @@ class HasMediaTest extends TestCase
 
         Queue::assertPushed(
             PerformConversions::class, function ($job) use ($media, $conversions) {
-                return (
-                    $media->is($job->getMedia())
-                    && empty(array_diff($conversions, $job->getConversions()))
-                );
+                return $media->is($job->getMedia())
+                    && empty(array_diff($conversions, $job->getConversions()));
             }
         );
     }
@@ -110,10 +108,8 @@ class HasMediaTest extends TestCase
                     ->getMediaGroup($group)
                     ->getConversions();
 
-                return (
-                    $media->is($job->getMedia())
-                    && empty(array_diff($conversions, $job->getConversions()))
-                );
+                return $media->is($job->getMedia())
+                    && empty(array_diff($conversions, $job->getConversions()));
             }
         );
     }
@@ -282,7 +278,7 @@ class HasMediaTest extends TestCase
         $mediaTwo = factory(Media::class)->create();
 
         $this->subject->attachMedia([
-            $mediaOne->id, $mediaTwo->id
+            $mediaOne->id, $mediaTwo->id,
         ]);
 
         $this->subject->detachMedia($mediaOne);
