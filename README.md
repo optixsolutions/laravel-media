@@ -20,6 +20,10 @@ Once installed, you should publish the provided assets to create the necessary m
 php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvider"
 ```
 
+### Translations
+This package provides translations for the `InvalidConversion` exception.
+To use it, just change your `config/app.php` `locale` key for your corresponding location, like `en` or `pt-br`.
+
 ## Key concepts
 
 There are a few key concepts that should be considered before continuing:
