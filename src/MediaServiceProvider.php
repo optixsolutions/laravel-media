@@ -40,5 +40,20 @@ class MediaServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/media.php' => config_path('media.php'),
         ], 'config');
+
+        //Translations
+        $this->loadTranslations();
+    }
+
+    /**
+     * Load the package translations.
+     */
+    private function loadTranslations()
+    {
+        $translationsPath = __DIR__.'resources/lang';
+        $this->loadTranslationsFrom($translationsPath, 'media');
+        $this->publishes([
+            $translationsPath => base_path('resources/lang/vendor/laravel-media')
+        ], 'media-translations');
     }
 }
