@@ -23,6 +23,20 @@ php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvide
 ### Translations
 This package provides translations for the `InvalidConversion` exception.
 To use it, just change your `config/app.php` `locale` key for your corresponding location, like `en` or `pt-br`.
+Then, you can add a folder with the same name of your location to the translations directory:
+ `resources/lang/vendor/laravel-media/`. For example, the `pt-br` translations:
+ 
+ * Create a `pt-br` folder at `resources/lang/vendor/laravel-media/`:
+ * Create a `media.php` file within the `pt-br` directory.
+ * Add the translations to that file or you can just copy the `src/resources/lang/en/media.php` file and change the translations messages.
+ * Finally, your translation to `pt-br` should looks like this:
+ ```php
+ <?php
+ return [
+        'conversion'     => 'Conversão',
+        'does_not_exist' => 'não existe.',    
+ ];
+ ```
 
 ## Key concepts
 
