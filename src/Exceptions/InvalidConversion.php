@@ -12,6 +12,9 @@ class InvalidConversion extends Exception
      */
     public static function doesNotExist($name)
     {
-        return new static("Conversion `{$name}` does not exist");
+        $conversion = trans('media::media.conversion');
+        $doesNotExist = trans('media::media.does_not_exist');
+
+        return new static($conversion." `{$name}` ".$doesNotExist);
     }
 }
