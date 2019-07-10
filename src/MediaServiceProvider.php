@@ -50,7 +50,7 @@ class MediaServiceProvider extends ServiceProvider
      */
     private function loadTranslations()
     {
-        $translationsPath = __DIR__.'resources/lang';
+        $translationsPath = __DIR__.'/../resources/lang';
         $this->loadTranslationsFrom($translationsPath, 'media');
         $this->publishes([
             $translationsPath => base_path('resources/lang/vendor/laravel-media')
