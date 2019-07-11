@@ -209,7 +209,6 @@ managers, and make it easy to perform image manipulations. This is better repres
 | **Relationship type**           | One to many         | Many to many | Many to many         |
 | **Provides image manipulation** | Yes                 | No           | Yes                  |
 | **Definition of manipulations** | Specific to a model | -            | Global registry      |
-| **Manipulation library**        | `spatie/image`      | -            | `intervention/image` |
 
 ## License
 
