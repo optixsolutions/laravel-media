@@ -2,6 +2,7 @@
 
 namespace Optix\Media\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -34,7 +35,7 @@ class Media extends Model
      */
     public function getTypeAttribute()
     {
-        return str_before($this->mime_type, '/') ?? null;
+        return Str::before($this->mime_type, '/') ?? null;
     }
 
     /**
