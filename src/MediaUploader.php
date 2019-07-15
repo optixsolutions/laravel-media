@@ -2,7 +2,10 @@
 
 namespace Optix\Media;
 
+use Optix\Media\Models\Media;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Contracts\Filesystem\Filesystem;
 
 class MediaUploader
 {
@@ -10,6 +13,16 @@ class MediaUploader
      * @var UploadedFile
      */
     protected $file;
+
+    /**
+     * @var string
+     */
+    protected $model;
+
+    /**
+     * @var string
+     */
+    protected $disk;
 
     /**
      * @var string
@@ -27,32 +40,34 @@ class MediaUploader
     protected $attributes = [];
 
     /**
-     * Create a new MediaUploader instance.
-     *
-     * @param  UploadedFile  $file
-     * @return void
+     * @var FilesystemManager
      */
-    public function __construct(UploadedFile $file)
-    {
-        $this->setFile($file);
-    }
+    protected $filesystemManager;
 
     /**
-     * @param  UploadedFile  $file
-     * @return MediaUploader
+     * Create a new MediaUploader instance.
+     *
+     * @param  FilesystemManager  $filesystemManager
+     * @param  string  $model
+     * @param  string  $disk
+     * @return void
      */
-    public static function fromFile(UploadedFile $file)
-    {
-        return new static($file);
+    public function __construct(
+        string $model, string $disk, FilesystemManager $filesystemManager
+    ) {
+        $this->setModel($model);
+        $this->setDisk($disk);
+
+        $this->filesystemManager = $filesystemManager;
     }
 
     /**
      * Set the file to be uploaded.
      *
      * @param  UploadedFile  $file
-     * @return MediaUploader
+     * @return $this
      */
-    public function setFile(UploadedFile $file)
+    public function fromFile(UploadedFile $file)
     {
         $this->file = $file;
 
@@ -66,10 +81,48 @@ class MediaUploader
     }
 
     /**
+     * Set the media model class.
+     *
+     * @param  string  $model
+     * @return $this
+     */
+    public function setModel(string $model)
+    {
+        // Todo: Validate the model class
+
+        $this->model = $model;
+
+        return $this;
+    }
+
+    /**
+     * Create a new media model instance.
+     *
+     * @return Media
+     */
+    protected function makeModel()
+    {
+        return new $this->model;
+    }
+
+    /**
+     * Set the disk where the file will be stored.
+     *
+     * @param  string  $disk
+     * @return $this
+     */
+    public function setDisk(string $disk)
+    {
+        $this->disk = $disk;
+
+        return $this;
+    }
+
+    /**
      * Set the name of the media item.
      *
      * @param  string  $name
-     * @return MediaUploader
+     * @return $this
      */
     public function setName(string $name)
     {
@@ -79,54 +132,25 @@ class MediaUploader
     }
 
     /**
-     * @param  string  $name
-     * @return MediaUploader
-     */
-    public function useName(string $name)
-    {
-        return $this->setName($name);
-    }
-
-    /**
      * Set the name of the file.
      *
      * @param  string  $fileName
-     * @return MediaUploader
+     * @return $this
      */
     public function setFileName(string $fileName)
     {
-        $this->fileName = $this->sanitiseFileName($fileName);
+        $this->fileName = $fileName;
 
         return $this;
     }
 
     /**
-     * @param  string  $fileName
-     * @return MediaUploader
-     */
-    public function useFileName(string $fileName)
-    {
-        return $this->setFileName($fileName);
-    }
-
-    /**
-     * Sanitise the file name.
-     *
-     * @param  string  $fileName
-     * @return string
-     */
-    protected function sanitiseFileName(string $fileName)
-    {
-        return str_replace(['#', '/', '\\', ' '], '-', $fileName);
-    }
-
-    /**
-     * Set any custom attributes to be saved to the media item.
+     * Set any additional media item attributes.
      *
      * @param  array  $attributes
-     * @return MediaUploader
+     * @return $this
      */
-    public function withAttributes(array $attributes)
+    public function setAttributes(array $attributes)
     {
         $this->attributes = $attributes;
 
@@ -134,28 +158,27 @@ class MediaUploader
     }
 
     /**
-     * @param  array  $properties
-     * @return MediaUploader
+     * Get the filesystem driver.
+     *
+     * @return Filesystem
      */
-    public function withProperties(array $properties)
+    protected function getFilesystem()
     {
-        return $this->withAttributes($properties);
+        return $this->filesystemManager->disk($this->disk);
     }
 
     /**
-     * Upload the file to the specified disk.
+     * Upload the file and persist the media item.
      *
-     * @return mixed
+     * @return Media
      */
     public function upload()
     {
-        $model = config('media.model');
-
-        $media = new $model();
+        $media = $this->makeModel();
 
         $media->name = $this->name;
         $media->file_name = $this->fileName;
-        $media->disk = config('media.disk');
+        $media->disk = $this->disk;
         $media->mime_type = $this->file->getMimeType();
         $media->size = $this->file->getSize();
 
@@ -163,12 +186,11 @@ class MediaUploader
 
         $media->save();
 
-        $media->filesystem()->putFileAs(
-            $media->getDirectory(),
-            $this->file,
-            $this->fileName
+        $this->getFilesystem()->put(
+            $media->getPath(),
+            $this->file
         );
 
-        return $media->fresh();
+        return $media;
     }
 }

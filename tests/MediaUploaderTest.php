@@ -2,72 +2,49 @@
 
 namespace Optix\Media\Tests;
 
+use Mockery;
 use Optix\Media\Models\Media;
 use Optix\Media\MediaUploader;
 use Illuminate\Http\UploadedFile;
-use Optix\Media\Tests\Models\Media as CustomMedia;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MediaUploaderTest extends TestCase
 {
-    /** @test */
-    public function it_can_upload_media()
-    {
-        $file = UploadedFile::fake()->image('file-name.jpg');
-
-        $media = MediaUploader::fromFile($file)->upload();
-
-        $this->assertInstanceOf(Media::class, $media);
-        $this->assertTrue($media->filesystem()->exists($media->getPath()));
-    }
+    use RefreshDatabase;
 
     /** @test */
-    public function it_can_change_the_name_of_the_media_model()
+    public function it_can_upload_a_file_and_persist_a_media_item()
     {
-        $file = UploadedFile::fake()->image('file-name.jpg');
+        $model = Media::class;
+        $disk = 'public';
 
-        $media = MediaUploader::fromFile($file)
-            ->useName($newName = 'New name')
-            ->upload();
+        $filesystem = Storage::fake($disk);
 
-        $this->assertEquals($newName, $media->name);
+        $filesystemManager = Mockery::mock(FilesystemManager::class);
+
+        $filesystemManager
+             ->shouldReceive('disk')
+             ->with($disk)
+             ->andReturn($filesystem);
+
+        // Instantiate the media uploader...
+        $mediaUploader = new MediaUploader($model, $disk, $filesystemManager);
+
+        $file = UploadedFile::fake()->image('image.jpeg');
+
+        // Upload the file...
+        $media = $mediaUploader->fromFile($file)->upload();
+
+        $this->assertInstanceOf($model, $media);
+
+        $this->assertEquals('image', $media->name);
+        $this->assertEquals('image.jpeg', $media->file_name);
+        $this->assertEquals($disk, $media->disk);
+
+        $this->assertTrue($filesystem->exists($media->getPath()));
     }
 
-    /** @test */
-    public function it_can_rename_the_file_before_it_gets_uploaded()
-    {
-        $file = UploadedFile::fake()->image('file-name.jpg');
-
-        $media = MediaUploader::fromFile($file)
-            ->useFileName($newFileName = 'new-file-name.jpg')
-            ->upload();
-
-        $this->assertEquals($newFileName, $media->file_name);
-    }
-
-    /** @test */
-    public function it_will_sanitise_the_file_name()
-    {
-        $file = UploadedFile::fake()->image('bad file name#023.jpg');
-
-        $media = MediaUploader::fromFile($file)->upload();
-
-        $this->assertEquals('bad-file-name-023.jpg', $media->file_name);
-    }
-
-    /** @test */
-    public function it_can_save_custom_attributes_to_the_media_model()
-    {
-        config()->set('media.model', CustomMedia::class);
-
-        $file = UploadedFile::fake()->image('image.jpg');
-
-        $media = MediaUploader::fromFile($file)
-            ->withAttributes([
-                'custom_attribute' => 'Custom attribute',
-            ])
-            ->upload();
-
-        $this->assertInstanceOf(CustomMedia::class, $media);
-        $this->assertEquals('Custom attribute', $media->custom_attribute);
-    }
+    // Todo: 100% Coverage
 }

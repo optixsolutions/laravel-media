@@ -3,6 +3,7 @@
 namespace Optix\Media;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Filesystem\FilesystemManager;
 
 class MediaServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,16 @@ class MediaServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(ConversionRegistry::class);
+
+        $this->app->instance(MediaUploader::class, function () {
+            $config = $this->app['config'];
+
+            return new MediaUploader(
+                $config->get('media.model'),
+                $config->get('media.disk'),
+                $this->app->make(FilesystemManager::class)
+            );
+        });
     }
 
     /**
