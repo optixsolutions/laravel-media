@@ -2,55 +2,45 @@
 
 namespace Optix\Media;
 
+use Finfo;
 use Optix\Media\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
 
 class MediaUploader
 {
-    /**
-     * @var UploadedFile
-     */
-    protected $file;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $model;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $disk;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    /** @var string */
+    protected $filePath;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $fileName;
 
-    /**
-     * @var array
-     */
+    /** @var string */
+    protected $name;
+
+    /** @var array */
     protected $attributes = [];
 
-    /**
-     * @var FilesystemManager
-     */
+    /** @var bool */
+    protected $preserveOriginal = false;
+
+    /** @var FilesystemManager */
     protected $filesystemManager;
 
     /**
      * Create a new MediaUploader instance.
      *
-     * @param  FilesystemManager  $filesystemManager
      * @param  string  $model
      * @param  string  $disk
-     * @return void
+     * @param  FilesystemManager  $filesystemManager
      */
     public function __construct(
         string $model, string $disk, FilesystemManager $filesystemManager
@@ -61,21 +51,76 @@ class MediaUploader
         $this->filesystemManager = $filesystemManager;
     }
 
-    /**
-     * Set the file to be uploaded.
+    /***
+     * Todo
      *
-     * @param  UploadedFile  $file
+     * @param  string  $path
      * @return $this
      */
-    public function fromFile(UploadedFile $file)
+    public function fromPath(string $path)
     {
-        $this->file = $file;
+        $this->filePath = $path;
 
-        $fileName = $file->getClientOriginalName();
-        $name = pathinfo($fileName, PATHINFO_FILENAME);
+        $pathInfo = pathinfo($path);
 
-        $this->setName($name);
+        $this->setFileName($pathInfo['basename']);
+        $this->setName($pathInfo['filename']);
+
+        return $this;
+    }
+
+    /***
+     * Todo
+     *
+     * @param  UploadedFile|File  $file
+     * @return $this
+     */
+    public function fromFile($file)
+    {
+        if ($file instanceof UploadedFile) {
+            $this->filePath = $file->getRealPath();
+
+            $this->setFileName($file->getClientOriginalName());
+            $this->setName(pathinfo($this->fileName, PATHINFO_FILENAME));
+
+            return $this;
+        }
+
+        if ($file instanceof File) {
+            return $this->fromPath($file->getRealPath());
+        }
+
+        // Todo: throw Exception;
+    }
+
+    /**
+     * Todo
+     *
+     * @param  string  $url
+     * @return $this
+     */
+    public function fromUrl(string $url)
+    {
+        if (! $stream = @fopen($url, 'r')) {
+            // Todo: throw Exception
+        }
+
+        $this->filePath = tempnam(sys_get_temp_dir(), 'media');
+        file_put_contents($this->filePath, $stream);
+
+        $fileName = basename(urldecode(parse_url($url, PHP_URL_PATH)));
+
+        if (strlen($fileName) === 0) {
+            $fileName = 'media';
+        }
+
+        if (strpos($fileName, '.') === false) {
+            $extension = explode('/', mime_content_type($this->filePath));
+            $fileName = $fileName.'.'.$extension[1];
+        }
+
         $this->setFileName($fileName);
+        $this->setName(pathinfo($fileName, PATHINFO_FILENAME));
 
         return $this;
     }
@@ -88,7 +133,7 @@ class MediaUploader
      */
     public function setModel(string $model)
     {
-        // Todo: Validate the model class
+        // Todo: Verify model
 
         $this->model = $model;
 
@@ -106,13 +151,15 @@ class MediaUploader
     }
 
     /**
-     * Set the disk where the file will be stored.
+     * Set the disk where the file will be uploaded.
      *
      * @param  string  $disk
      * @return $this
      */
     public function setDisk(string $disk)
     {
+        // Todo: Verify Disk
+
         $this->disk = $disk;
 
         return $this;
@@ -145,7 +192,7 @@ class MediaUploader
     }
 
     /**
-     * Set any additional media item attributes.
+     * Set any custom attributes to be saved on the media item.
      *
      * @param  array  $attributes
      * @return $this
@@ -158,7 +205,51 @@ class MediaUploader
     }
 
     /**
-     * Get the filesystem driver.
+     * Specify to preserve the original file.
+     *
+     * @return $this
+     */
+    public function preserveOriginal()
+    {
+        $this->preserveOriginal = true;
+
+        return $this;
+    }
+
+    /**
+     * Upload the file and create a media item record.
+     *
+     * @return Media
+     */
+    public function upload()
+    {
+        $filesystem = $this->getFilesystem();
+
+        $media = $this->makeModel();
+
+        $media->name = $this->name;
+        $media->file_name = $this->fileName;
+        $media->mime_type = $this->getMimeType();
+        $media->size = filesize($this->filePath);
+        $media->disk = $this->disk;
+
+        $media->fill($this->attributes);
+
+        $media->save();
+
+        $file = fopen($this->filePath, 'r');
+        $filesystem->put($media->getPath(), $file);
+        fclose($file);
+
+        if (! $this->preserveOriginal) {
+            unlink($this->filePath);
+        }
+
+        return $media;
+    }
+
+    /**
+     * Resolve the filesystem driver.
      *
      * @return Filesystem
      */
@@ -168,29 +259,14 @@ class MediaUploader
     }
 
     /**
-     * Upload the file and persist the media item.
+     * Get the file's mime type.
      *
-     * @return Media
+     * @return string
      */
-    public function upload()
+    protected function getMimeType()
     {
-        $media = $this->makeModel();
+        $finfo = new Finfo(FILEINFO_MIME_TYPE);
 
-        $media->name = $this->name;
-        $media->file_name = $this->fileName;
-        $media->disk = $this->disk;
-        $media->mime_type = $this->file->getMimeType();
-        $media->size = $this->file->getSize();
-
-        $media->forceFill($this->attributes);
-
-        $media->save();
-
-        $this->getFilesystem()->put(
-            $media->getPath(),
-            $this->file
-        );
-
-        return $media;
+        return $finfo->file($this->filePath);
     }
 }

@@ -12,9 +12,9 @@ class CreateMediaTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('file_name');
-            $table->string('disk');
             $table->string('mime_type');
             $table->unsignedInteger('size');
+            $table->string('disk');
             $table->timestamps();
         });
 

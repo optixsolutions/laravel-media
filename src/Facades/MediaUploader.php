@@ -3,6 +3,7 @@
 namespace Optix\Media\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Optix\Media\MediaUploader as Uploader;
 
 class MediaUploader extends Facade
 {
@@ -13,6 +14,6 @@ class MediaUploader extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return MediaUploader::class;
+        return Uploader::class;
     }
 }

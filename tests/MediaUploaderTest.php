@@ -2,49 +2,27 @@
 
 namespace Optix\Media\Tests;
 
-use Mockery;
-use Optix\Media\Models\Media;
-use Optix\Media\MediaUploader;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MediaUploaderTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_can_upload_a_file_and_persist_a_media_item()
-    {
-        $model = Media::class;
-        $disk = 'public';
+    // Todo: fromPath
 
-        $filesystem = Storage::fake($disk);
+    // Todo: fromFile [UploadedFile|File]
 
-        $filesystemManager = Mockery::mock(FilesystemManager::class);
+    // Todo: fromUrl
 
-        $filesystemManager
-             ->shouldReceive('disk')
-             ->with($disk)
-             ->andReturn($filesystem);
+    // Todo: setModel
 
-        // Instantiate the media uploader...
-        $mediaUploader = new MediaUploader($model, $disk, $filesystemManager);
+    // Todo: setDisk
 
-        $file = UploadedFile::fake()->image('image.jpeg');
+    // Todo: setFileName
 
-        // Upload the file...
-        $media = $mediaUploader->fromFile($file)->upload();
+    // Todo: setName
 
-        $this->assertInstanceOf($model, $media);
+    // Todo: setAttributes
 
-        $this->assertEquals('image', $media->name);
-        $this->assertEquals('image.jpeg', $media->file_name);
-        $this->assertEquals($disk, $media->disk);
-
-        $this->assertTrue($filesystem->exists($media->getPath()));
-    }
-
-    // Todo: 100% Coverage
+    // Todo: preserveOriginal
 }

@@ -39,6 +39,27 @@ class Media extends Model
     }
 
     /**
+     * Intercept the file name before it is set.
+     *
+     * @param  string  $fileName
+     */
+    public function setFileNameAttribute(string $fileName)
+    {
+        $this->attributes['file_name'] = $this->sanitiseFileName($fileName);
+    }
+
+    /**
+     * Sanitise the file name.
+     *
+     * @param  string  $fileName
+     * @return string
+     */
+    protected function sanitiseFileName(string $fileName)
+    {
+        return str_replace(['#', '/', '\\', ' '], '-', $fileName);
+    }
+
+    /**
      * Determine if the file is of the specified type.
      *
      * @param  string  $type
