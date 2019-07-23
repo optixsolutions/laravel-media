@@ -17,17 +17,17 @@ composer require optix/media
 Once installed, you should publish the provided assets to create the necessary migration and config files.
 
 ```bash
-php artisan vendor:publish --provider="Optix\Media\Providers\MediaServiceProvider"
+php artisan vendor:publish --provider="Optix\Media\MediaServiceProvider"
 ```
 
 ## Key concepts
 
-There are a few key concepts that should be considered before continuing:
+There are a few key concepts that should be understood before continuing:
 
 * Media can be any type of file, from a jpeg to a zip file. You should specify any file restrictions in your
   application's validation logic before you attempt to upload a file.
 
-* Media is uploaded as its own entity. It does not belong to another model in the system when it's created, so it can
+* Media is uploaded as its own entity. It does not belong to another model in the system when it's created, so items can
   be managed independently (which makes it the perfect engine for a media manager).
   
 * Media must be attached to a model for an association to be made.
@@ -40,7 +40,7 @@ There are a few key concepts that should be considered before continuing:
   model's "gallery" group.
 
 * Conversions are registered globally. This means that they can be reused across your application, i.e a Post and a
-  User can have the same sized thumbnail without having to register it twice.
+  User can have the same sized thumbnail without having to register the same conversion twice.
 
 ## Usage
 
@@ -95,7 +95,7 @@ $post->attachMedia($media, 'custom-group');
 
 ### Disassociate media from a model
 
-To disassociate media from a model, you should call the `detachMedia` method provided by the `HasMedia` trait.
+To disassociate media from a model, you should call the provided `detachMedia` method.
 
 ```php
 // Detach all the media
