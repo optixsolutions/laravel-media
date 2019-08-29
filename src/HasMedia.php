@@ -22,7 +22,7 @@ trait HasMedia
     public function media()
     {
         return $this->morphToMany(config('media.model'), 'mediable')
-                    ->withPivot('group');
+            ->withPivot('group');
     }
 
     /**
@@ -99,16 +99,14 @@ trait HasMedia
     {
         $ids = $this->parseMediaIds($media);
 
-        $media = [];
-        foreach ($ids as $id) {
-            $media[$id] = ['group' => $group];
-        }
-
-        \DB::transaction(function () use ($media, $group, $conversions, $detachExisting) {
+        \DB::transaction(function () use ($ids, $group, $conversions, $detachExisting) {
             $this->registerMediaGroups();
             $mediaGroup = $this->getMediaGroup($group);
 
-            $sync = $this->media()->sync($media, $detachExisting);
+            $sync = $this->media()->wherePivot('group', $group)
+                ->withPivotValue('group', $group)
+                ->sync($ids, $detachExisting);
+
             $ids = array_merge($sync['attached'], $sync['updated']);
 
             if ($mediaGroup && $mediaGroup->hasConversions()) {
