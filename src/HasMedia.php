@@ -88,7 +88,7 @@ trait HasMedia
     }
 
     /**
-     * Syncronise media against the specified group
+     * Syncronise media against the specified group.
      *
      * @param mixed $media
      * @param string $group
@@ -118,7 +118,7 @@ trait HasMedia
                 );
             }
 
-            if (!empty($conversions) && count($ids)) {
+            if (! empty($conversions) && count($ids)) {
                 $model = config('media.model');
 
                 $media = $model::findMany($ids);
