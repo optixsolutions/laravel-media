@@ -22,13 +22,14 @@ trait HasMedia
     public function media()
     {
         return $this->morphToMany(config('media.model'), 'mediable')
-                    ->withPivot('group');
+            ->withPivot('group');
     }
 
     /**
      * Determine if there is any media in the specified group.
      *
-     * @param  string  $group
+     * @param string $group
+     *
      * @return mixed
      */
     public function hasMedia(string $group = 'default')
@@ -39,7 +40,8 @@ trait HasMedia
     /**
      * Get all the media in the specified group.
      *
-     * @param  string  $group
+     * @param string $group
+     *
      * @return mixed
      */
     public function getMedia(string $group = 'default')
@@ -50,7 +52,8 @@ trait HasMedia
     /**
      * Get the first media item in the specified group.
      *
-     * @param string  $group
+     * @param string $group
+     *
      * @return mixed
      */
     public function getFirstMedia(string $group = 'default')
@@ -61,13 +64,14 @@ trait HasMedia
     /**
      * Get the url of the first media item in the specified group.
      *
-     * @param  string  $group
-     * @param  string  $conversion
+     * @param string $group
+     * @param string $conversion
+     *
      * @return string
      */
     public function getFirstMediaUrl(string $group = 'default', string $conversion = '')
     {
-        if (! $media = $this->getFirstMedia($group)) {
+        if (!$media = $this->getFirstMedia($group)) {
             return '';
         }
 
@@ -77,46 +81,67 @@ trait HasMedia
     /**
      * Attach media to the specified group.
      *
-     * @param  mixed  $media
-     * @param  string  $group
-     * @param  array  $conversions
+     * @param mixed  $media
+     * @param string $group
+     * @param array  $conversions
+     *
      * @return void
      */
     public function attachMedia($media, string $group = 'default', array $conversions = [])
     {
-        $this->registerMediaGroups();
+        $this->syncMedia($media, $group, $conversions, false);
+    }
 
+    /**
+     * Syncronise media against the specified group
+     *
+     * @param mixed  $media
+     * @param string $group
+     * @param array  $conversions
+     * @param bool   $detachExisting
+     */
+    public function syncMedia($media, string $group = 'default', array $conversions = [], $detachExisting = false)
+    {
         $ids = $this->parseMediaIds($media);
 
-        $mediaGroup = $this->getMediaGroup($group);
-
-        if ($mediaGroup && $mediaGroup->hasConversions()) {
-            $conversions = array_merge(
-                $conversions, $mediaGroup->getConversions()
-            );
+        $media = [];
+        foreach ($ids as $id) {
+            $media[$id] = ['group' => $group];
         }
 
-        if (! empty($conversions)) {
-            $model = config('media.model');
+        \DB::transaction(function () use ($media, $group, $conversions, $detachExisting) {
 
-            $media = $model::findMany($ids);
+            $this->registerMediaGroups();
+            $mediaGroup = $this->getMediaGroup($group);
 
-            $media->each(function ($media) use ($conversions) {
-                PerformConversions::dispatch(
-                    $media, $conversions
+            $sync = $this->media()->sync($media, $detachExisting);
+            $ids = array_merge($sync['attached'], $sync['updated']);
+
+            if ($mediaGroup && $mediaGroup->hasConversions()) {
+                $conversions = array_merge(
+                    $conversions, $mediaGroup->getConversions()
                 );
-            });
-        }
+            }
 
-        $this->media()->attach($ids, [
-            'group' => $group,
-        ]);
+            if (!empty($conversions) && count($ids)) {
+                $model = config('media.model');
+
+                $media = $model::findMany($ids);
+
+                $media->each(function ($media) use ($conversions) {
+                    PerformConversions::dispatch(
+                        $media, $conversions
+                    );
+                });
+            }
+        });
     }
 
     /**
      * Parse the media id's from the mixed input.
      *
-     * @param  mixed  $media
+     * @param mixed $media
+     *
      * @return array
      */
     protected function parseMediaIds($media)
@@ -129,7 +154,7 @@ trait HasMedia
             return [$media->getKey()];
         }
 
-        return (array) $media;
+        return (array)$media;
     }
 
     /**
@@ -145,7 +170,8 @@ trait HasMedia
     /**
      * Register a new media group.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return MediaGroup
      */
     protected function addMediaGroup(string $name)
@@ -160,7 +186,8 @@ trait HasMedia
     /**
      * Get the media group with the specified name.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return MediaGroup|null
      */
     public function getMediaGroup(string $name)
@@ -171,7 +198,8 @@ trait HasMedia
     /**
      * Detach the specified media.
      *
-     * @param  null  $media
+     * @param null $media
+     *
      * @return void
      */
     public function detachMedia($media = null)
@@ -182,7 +210,8 @@ trait HasMedia
     /**
      * Detach all the media in the specified group.
      *
-     * @param  string  $group
+     * @param string $group
+     *
      * @return void
      */
     public function clearMediaGroup(string $group = 'default')
