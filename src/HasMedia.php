@@ -105,7 +105,6 @@ trait HasMedia
         }
 
         \DB::transaction(function () use ($media, $group, $conversions, $detachExisting) {
-
             $this->registerMediaGroups();
             $mediaGroup = $this->getMediaGroup($group);
 
