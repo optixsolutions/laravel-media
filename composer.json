@@ -9,20 +9,20 @@
     ],
     "require": {
         "php": "^7.1.3",
-        "laravel/framework": "5.5.*|5.6.*|5.7.*|5.8.*",
+        "laravel/framework": "^5.5.0|^5.6.0|^5.7.0|^5.8.0|^6.0.0",
         "intervention/image": "^2.5"
     },
     "require-dev": {
-        "orchestra/testbench": "^3.8"
+        "orchestra/testbench": "^3.8.0|^4.0.0"
     },
     "autoload": {
         "psr-4": {
-            "Optix\\Media\\": "src"
+            "Optix\\Media\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Optix\\Media\\Tests\\": "tests"
+            "Optix\\Media\\Tests\\": "tests/"
         }
     },
     "extra": {
