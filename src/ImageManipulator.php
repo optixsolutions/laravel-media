@@ -55,7 +55,9 @@ class ImageManipulator
             $converter = $this->conversionRegistry->get($conversion);
 
             $image = $converter(
-                $this->imageManager->make($media->getFullPath())
+                $this->imageManager->make(
+                    $media->filesystem()->readStream($media->getPath())
+                )
             );
 
             $media->filesystem()->put($path, $image->stream());
