@@ -6,9 +6,7 @@ use Optix\Media\Exceptions\InvalidConversion;
 
 class ConversionRegistry
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $conversions = [];
 
     /**
@@ -24,8 +22,8 @@ class ConversionRegistry
     /**
      * Register a new conversion.
      *
-     * @param  string  $name
-     * @param  callable  $conversion
+     * @param string $name
+     * @param callable $conversion
      * @return void
      */
     public function register(string $name, callable $conversion)
@@ -36,7 +34,7 @@ class ConversionRegistry
     /**
      * Get the conversion with the specified name.
      *
-     * @param  string  $name
+     * @param string $name
      * @return mixed
      *
      * @throws InvalidConversion
@@ -53,7 +51,7 @@ class ConversionRegistry
     /**
      * Determine if a conversion with the specified name exists.
      *
-     * @param  string  $name
+     * @param string $name
      * @return bool
      */
     public function exists(string $name)

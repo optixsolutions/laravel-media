@@ -4,15 +4,13 @@ namespace Optix\Media;
 
 class MediaGroup
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $conversions = [];
 
     /**
      * Register the conversions to be performed when media is attached.
      *
-     * @param  string  ...$conversions
+     * @param string ...$conversions
      * @return $this
      */
     public function performConversions(...$conversions)

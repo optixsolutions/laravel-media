@@ -6,30 +6,22 @@ use Illuminate\Http\UploadedFile;
 
 class MediaUploader
 {
-    /**
-     * @var UploadedFile
-     */
+    /** @var UploadedFile */
     protected $file;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $fileName;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $attributes = [];
 
     /**
-     * Create a new MediaUploader instance.
+     * Create a new uploader instance.
      *
-     * @param  UploadedFile  $file
+     * @param UploadedFile $file
      * @return void
      */
     public function __construct(UploadedFile $file)
@@ -38,7 +30,7 @@ class MediaUploader
     }
 
     /**
-     * @param  UploadedFile  $file
+     * @param UploadedFile $file
      * @return MediaUploader
      */
     public static function fromFile(UploadedFile $file)
@@ -49,7 +41,7 @@ class MediaUploader
     /**
      * Set the file to be uploaded.
      *
-     * @param  UploadedFile  $file
+     * @param UploadedFile $file
      * @return MediaUploader
      */
     public function setFile(UploadedFile $file)
@@ -68,7 +60,7 @@ class MediaUploader
     /**
      * Set the name of the media item.
      *
-     * @param  string  $name
+     * @param string $name
      * @return MediaUploader
      */
     public function setName(string $name)
@@ -79,7 +71,7 @@ class MediaUploader
     }
 
     /**
-     * @param  string  $name
+     * @param string $name
      * @return MediaUploader
      */
     public function useName(string $name)
@@ -90,7 +82,7 @@ class MediaUploader
     /**
      * Set the name of the file.
      *
-     * @param  string  $fileName
+     * @param string $fileName
      * @return MediaUploader
      */
     public function setFileName(string $fileName)
@@ -101,7 +93,7 @@ class MediaUploader
     }
 
     /**
-     * @param  string  $fileName
+     * @param string $fileName
      * @return MediaUploader
      */
     public function useFileName(string $fileName)
@@ -112,7 +104,7 @@ class MediaUploader
     /**
      * Sanitise the file name.
      *
-     * @param  string  $fileName
+     * @param string $fileName
      * @return string
      */
     protected function sanitiseFileName(string $fileName)
@@ -123,7 +115,7 @@ class MediaUploader
     /**
      * Set any custom attributes to be saved to the media item.
      *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return MediaUploader
      */
     public function withAttributes(array $attributes)
@@ -134,7 +126,7 @@ class MediaUploader
     }
 
     /**
-     * @param  array  $properties
+     * @param array $properties
      * @return MediaUploader
      */
     public function withProperties(array $properties)

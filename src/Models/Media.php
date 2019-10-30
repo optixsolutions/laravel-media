@@ -41,7 +41,7 @@ class Media extends Model
     /**
      * Determine if the file is of the specified type.
      *
-     * @param  string  $type
+     * @param string $type
      * @return bool
      */
     public function isOfType(string $type)
@@ -52,29 +52,33 @@ class Media extends Model
     /**
      * Get the url to the file.
      *
-     * @param  string  $conversion
+     * @param string $conversion
      * @return mixed
      */
     public function getUrl(string $conversion = '')
     {
-        return $this->filesystem()->url($this->getPath($conversion));
+        return $this->filesystem()->url(
+            $this->getPath($conversion)
+        );
     }
 
     /**
      * Get the full path to the file.
      *
-     * @param  string  $conversion
+     * @param string $conversion
      * @return mixed
      */
     public function getFullPath(string $conversion = '')
     {
-        return $this->filesystem()->path($this->getPath($conversion));
+        return $this->filesystem()->path(
+            $this->getPath($conversion)
+        );
     }
 
     /**
      * Get the path to the file on disk.
      *
-     * @param  string  $conversion
+     * @param string $conversion
      * @return string
      */
     public function getPath(string $conversion = '')

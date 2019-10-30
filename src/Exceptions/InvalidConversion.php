@@ -7,7 +7,7 @@ use Exception;
 class InvalidConversion extends Exception
 {
     /**
-     * @param  string  $name
+     * @param string $name
      * @return InvalidConversion
      */
     public static function doesNotExist($name)

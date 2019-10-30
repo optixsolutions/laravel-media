@@ -14,21 +14,17 @@ class PerformConversions implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * @var Media
-     */
+    /** @var Media */
     protected $media;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $conversions;
 
     /**
-     * Create a new PerformConversions instance.
+     * Create a new job instance.
      *
-     * @param  Media  $media
-     * @param  array  $conversions
+     * @param Media $media
+     * @param array $conversions
      * @return void
      */
     public function __construct(Media $media, array $conversions)
@@ -50,17 +46,13 @@ class PerformConversions implements ShouldQueue
         );
     }
 
-    /**
-     * @return Media
-     */
+    /** @return Media */
     public function getMedia()
     {
         return $this->media;
     }
 
-    /**
-     * @return array
-     */
+    /** @return array */
     public function getConversions()
     {
         return $this->conversions;
