@@ -4,24 +4,22 @@ namespace Optix\Media;
 
 use Optix\Media\Models\Media;
 use Intervention\Image\ImageManager;
+use Optix\Media\Exceptions\InvalidConversion;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class ImageManipulator
 {
-    /**
-     * @var ConversionRegistry
-     */
+    /** @var ConversionRegistry */
     protected $conversionRegistry;
 
-    /**
-     * @var ImageManager
-     */
+    /** @var ImageManager */
     protected $imageManager;
 
     /**
-     * Create a new ImageManipulator instance.
+     * Create a new manipulator instance.
      *
-     * @param  ConversionRegistry  $conversionRegistry
-     * @param  ImageManager  $imageManager
+     * @param ConversionRegistry $conversionRegistry
+     * @param ImageManager $imageManager
      * @return void
      */
     public function __construct(ConversionRegistry $conversionRegistry, ImageManager $imageManager)
@@ -34,10 +32,13 @@ class ImageManipulator
     /**
      * Perform the specified conversions on the given media item.
      *
-     * @param  Media  $media
-     * @param  array  $conversions
-     * @param  bool  $onlyIfMissing
+     * @param Media $media
+     * @param array $conversions
+     * @param bool $onlyIfMissing
      * @return void
+     *
+     * @throws InvalidConversion
+     * @throws FileNotFoundException
      */
     public function manipulate(Media $media, array $conversions, $onlyIfMissing = true)
     {
