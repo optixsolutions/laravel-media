@@ -40,6 +40,7 @@ class ImageManipulatorTest extends TestCase
         $media->mime_type = 'image/png';
 
         $filesystem = Mockery::mock(Filesystem::class);
+        $filesystem->shouldReceive('readStream')->andReturn('stream-data');
         $filesystem->shouldReceive('path')->with($media->getPath())->andReturn('full-path');
 
         // Assert that the converted file is saved...
