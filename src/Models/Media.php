@@ -2,10 +2,10 @@
 
 namespace Optix\Media\Models;
 
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class Media extends Model
 {

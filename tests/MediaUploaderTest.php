@@ -2,9 +2,9 @@
 
 namespace Optix\Media\Tests;
 
-use Optix\Media\Models\Media;
-use Optix\Media\MediaUploader;
 use Illuminate\Http\UploadedFile;
+use Optix\Media\MediaUploader;
+use Optix\Media\Models\Media;
 use Optix\Media\Tests\Models\Media as CustomMedia;
 
 class MediaUploaderTest extends TestCase

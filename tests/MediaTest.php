@@ -2,9 +2,9 @@
 
 namespace Optix\Media\Tests;
 
+use Illuminate\Filesystem\Filesystem;
 use Mockery;
 use Optix\Media\Models\Media;
-use Illuminate\Filesystem\Filesystem;
 
 class MediaTest extends TestCase
 {
