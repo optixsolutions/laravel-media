@@ -2,8 +2,8 @@
 
 namespace Optix\Media\Facades;
 
-use Optix\Media\ConversionRegistry;
 use Illuminate\Support\Facades\Facade;
+use Optix\Media\ConversionRegistry;
 
 class Conversion extends Facade
 {

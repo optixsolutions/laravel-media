@@ -2,10 +2,10 @@
 
 namespace Optix\Media;
 
-use Optix\Media\Models\Media;
-use Optix\Media\Jobs\PerformConversions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Optix\Media\Jobs\PerformConversions;
+use Optix\Media\Models\Media;
 
 trait HasMedia
 {

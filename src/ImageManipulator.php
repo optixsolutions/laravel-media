@@ -2,10 +2,10 @@
 
 namespace Optix\Media;
 
-use Optix\Media\Models\Media;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Intervention\Image\ImageManager;
 use Optix\Media\Exceptions\InvalidConversion;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Optix\Media\Models\Media;
 
 class ImageManipulator
 {

@@ -2,14 +2,14 @@
 
 namespace Optix\Media\Tests;
 
-use Mockery;
-use Intervention\Image\Image;
-use Optix\Media\Models\Media;
-use Optix\Media\ImageManipulator;
-use Optix\Media\ConversionRegistry;
-use Intervention\Image\ImageManager;
 use Illuminate\Filesystem\Filesystem;
+use Intervention\Image\Image;
+use Intervention\Image\ImageManager;
+use Mockery;
+use Optix\Media\ConversionRegistry;
 use Optix\Media\Exceptions\InvalidConversion;
+use Optix\Media\ImageManipulator;
+use Optix\Media\Models\Media;
 
 class ImageManipulatorTest extends TestCase
 {

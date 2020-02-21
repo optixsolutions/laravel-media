@@ -3,12 +3,12 @@
 namespace Optix\Media\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Optix\Media\Models\Media;
-use Optix\Media\ImageManipulator;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Optix\Media\ImageManipulator;
+use Optix\Media\Models\Media;
 
 class PerformConversions implements ShouldQueue
 {

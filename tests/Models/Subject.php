@@ -2,8 +2,8 @@
 
 namespace Optix\Media\Tests\Models;
 
-use Optix\Media\HasMedia;
 use Illuminate\Database\Eloquent\Model;
+use Optix\Media\HasMedia;
 
 class Subject extends Model
 {

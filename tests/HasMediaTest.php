@@ -2,13 +2,13 @@
 
 namespace Optix\Media\Tests;
 
-use Optix\Media\Models\Media;
-use Illuminate\Support\Facades\Queue;
-use Optix\Media\Tests\Models\Subject;
-use Optix\Media\Jobs\PerformConversions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
+use Optix\Media\Jobs\PerformConversions;
+use Optix\Media\Models\Media;
+use Optix\Media\Tests\Models\Subject;
 
 class HasMediaTest extends TestCase
 {
