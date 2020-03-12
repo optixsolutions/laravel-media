@@ -1,3 +1,7 @@
 /.idea
+/.vscode
 /vendor
-/.phpunit.result.cache
+.DS_Store
+.phpunit.result.cache
+composer.lock
+phpunit.xml
