@@ -1,0 +1,47 @@
+name: Run tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [7.4, 7.3, 7.2]
+        laravel: [^7.0, ^6.0, ~5.8.0]
+        dependency-versions: [prefer-lowest, prefer-stable]
+        include:
+          - laravel: ^7.0
+            testbench: ^5.0
+          - laravel: ^6.0
+            testbench: ^4.0
+          - laravel: ~5.8.0
+            testbench: ~3.8.0
+
+    name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }} / ${{ matrix.dependency-versions }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, mysql, mysqli, pdo_mysql, bcmath, soap, intl, gd, exif, iconv, imagick
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer require "symfony/console:>=4.4" "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --${{ matrix.dependency-versions }} --prefer-dist --no-interaction --no-suggest
+
+      - name: Execute tests
+        run: vendor/bin/phpunit
