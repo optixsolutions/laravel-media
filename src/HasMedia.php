@@ -15,7 +15,7 @@ trait HasMedia
     protected static function bootHasMedia()
     {
         self::deleting(function ($model) {
-            $model->media()->delete();
+            $model->media()->detach();
         });
     }
 
