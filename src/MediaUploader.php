@@ -129,6 +129,15 @@ class MediaUploader
     }
 
     /**
+     * @param string $disk
+     * @return MediaUploader
+     */
+    public function toDisk(string $disk)
+    {
+        return $this->setDisk($disk);
+    }
+
+    /**
      * Set any custom attributes to be saved to the media item.
      *
      * @param array $attributes
