@@ -3,21 +3,62 @@
 namespace Optix\Media\Tests;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 use Optix\Media\MediaUploader;
 use Optix\Media\Models\Media;
 use Optix\Media\Tests\Models\Media as CustomMedia;
 
 class MediaUploaderTest extends TestCase
 {
+    const DEFAULT_DISK = 'default';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Use a test disk as the default disk...
+        Config::set('media.disk', self::DEFAULT_DISK);
+
+        // Create a test filesystem for the default disk...
+        Storage::fake(self::DEFAULT_DISK);
+    }
+
     /** @test */
-    public function it_can_upload_media()
+    public function it_can_upload_a_file_to_the_default_disk()
     {
         $file = UploadedFile::fake()->image('file-name.jpg');
 
         $media = MediaUploader::fromFile($file)->upload();
 
         $this->assertInstanceOf(Media::class, $media);
-        $this->assertTrue($media->filesystem()->exists($media->getPath()));
+        $this->assertEquals(self::DEFAULT_DISK, $media->disk);
+
+        $filesystem = Storage::disk(self::DEFAULT_DISK);
+
+        $this->assertTrue($filesystem->exists($media->getPath()));
+    }
+
+    /** @test */
+    public function it_can_upload_a_file_to_a_specific_disk()
+    {
+        $file = UploadedFile::fake()->image('file-name.jpg');
+
+        $customDisk = 'custom';
+
+        // Create a test filesystem for the custom disk...
+        Storage::fake($customDisk);
+
+        $media = MediaUploader::fromFile($file)
+            ->setDisk($customDisk)
+            ->upload();
+
+        $this->assertInstanceOf(Media::class, $media);
+        $this->assertEquals($customDisk, $media->disk);
+
+        $filesystem = Storage::disk($customDisk);
+
+        $this->assertTrue($filesystem->exists($media->getPath()));
     }
 
     /** @test */

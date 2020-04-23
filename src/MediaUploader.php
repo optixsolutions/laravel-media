@@ -15,6 +15,9 @@ class MediaUploader
     /** @var string */
     protected $fileName;
 
+    /** @var string */
+    protected $disk;
+
     /** @var array */
     protected $attributes = [];
 
@@ -113,6 +116,19 @@ class MediaUploader
     }
 
     /**
+     * Specify the disk where the file will be stored.
+     *
+     * @param string $disk
+     * @return MediaUploader
+     */
+    public function setDisk(string $disk)
+    {
+        $this->disk = $disk;
+
+        return $this;
+    }
+
+    /**
      * Set any custom attributes to be saved to the media item.
      *
      * @param array $attributes
@@ -147,7 +163,7 @@ class MediaUploader
 
         $media->name = $this->name;
         $media->file_name = $this->fileName;
-        $media->disk = config('media.disk');
+        $media->disk = $this->disk ?: config('media.disk');
         $media->mime_type = $this->file->getMimeType();
         $media->size = $this->file->getSize();
 
