@@ -52,7 +52,7 @@ class MediaUploader
      */
     public static function fromPath(string $path)
     {
-        $originalName = File::name($path) . '.' . File::extension($path);
+        $originalName = File::name($path).'.'.File::extension($path);
         $uploadedFile = new UploadedFile($path, $originalName, File::mimeType($path));
 
         return new static($uploadedFile);
