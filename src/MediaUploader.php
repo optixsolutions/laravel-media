@@ -3,6 +3,7 @@
 namespace Optix\Media;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 
 class MediaUploader
 {
@@ -39,6 +40,22 @@ class MediaUploader
     public static function fromFile(UploadedFile $file)
     {
         return new static($file);
+    }
+
+    /**
+     * Create an uploader instance from a path.
+     *
+     * @author Jose Erick Carreon <joserick.92@gmail.com>
+     *
+     * @param string $path
+     * @return MediaUploader
+     */
+    public static function fromPath(string $path)
+    {
+        $originalName = File::name($path) . '.' . File::extension($path);
+        $uploadedFile = new UploadedFile($path, $originalName, File::mimeType($path));
+
+        return new static($uploadedFile);
     }
 
     /**
