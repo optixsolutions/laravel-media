@@ -6,7 +6,6 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Mockery;
 use Optix\Media\MediaUploader;
 use Optix\Media\Models\Media;
 use Optix\Media\Options\UploadOptions;
