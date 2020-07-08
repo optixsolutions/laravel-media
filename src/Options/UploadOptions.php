@@ -2,7 +2,7 @@
 
 namespace Optix\Media\Options;
 
-class UploadMediaOptions
+class UploadOptions
 {
     /** @var string|null */
     public $mediaName;

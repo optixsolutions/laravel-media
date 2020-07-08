@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Filesystem\FilesystemManager;
 use League\Flysystem\AdapterInterface;
 use Optix\Media\Models\Media;
-use Optix\Media\Options\UploadMediaOptions;
+use Optix\Media\Options\UploadOptions;
 use Optix\Media\Support\FileNameSanitiser;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -19,7 +19,7 @@ class MediaUploader
     /** @var array */
     protected $config;
 
-    /** @var UploadMediaOptions */
+    /** @var UploadOptions */
     protected $options;
 
     /**
@@ -70,24 +70,24 @@ class MediaUploader
     /**
      * Set the upload options.
      *
-     * @param UploadMediaOptions|null $options
+     * @param UploadOptions|null $options
      * @return void
      */
-    protected function setOptions(?UploadMediaOptions $options)
+    protected function setOptions(?UploadOptions $options)
     {
-        $this->options = $options ?: new UploadMediaOptions();
+        $this->options = $options ?: new UploadOptions();
     }
 
     /**
      * Upload a file to the media manager.
      *
      * @param string|UploadedFile|File $file
-     * @param UploadMediaOptions|null $options
-     * @return mixed
+     * @param UploadOptions|null $options
+     * @return Media
      *
      * @throws
      */
-    public function upload($file, UploadMediaOptions $options = null)
+    public function upload($file, UploadOptions $options = null)
     {
         [$filePath, $fileName] = $this->parseFileInfo($file);
 
