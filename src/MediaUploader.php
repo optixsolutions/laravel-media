@@ -2,190 +2,225 @@
 
 namespace Optix\Media;
 
-use Illuminate\Http\UploadedFile;
+use Exception;
+use Illuminate\Filesystem\FilesystemManager;
+use League\Flysystem\AdapterInterface;
+use Optix\Media\Models\Media;
+use Optix\Media\Options\UploadMediaOptions;
+use Optix\Media\Support\FileNameSanitiser;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class MediaUploader
 {
-    /** @var UploadedFile */
-    protected $file;
-
-    /** @var string */
-    protected $name;
-
-    /** @var string */
-    protected $fileName;
-
-    /** @var string */
-    protected $disk;
+    /** @var FilesystemManager */
+    protected $filesystemManager;
 
     /** @var array */
-    protected $attributes = [];
+    protected $config;
+
+    /** @var UploadMediaOptions */
+    protected $options;
 
     /**
-     * Create a new uploader instance.
+     * Create a new media uploader instance.
      *
-     * @param UploadedFile $file
+     * @param FilesystemManager $filesystemManager
+     * @param array $config
      * @return void
      */
-    public function __construct(UploadedFile $file)
-    {
-        $this->setFile($file);
+    public function __construct(
+        FilesystemManager $filesystemManager,
+        array $config
+    ) {
+        $this->setFilesystemManager($filesystemManager);
+        $this->setConfig($config);
     }
 
     /**
-     * @param UploadedFile $file
-     * @return MediaUploader
-     */
-    public static function fromFile(UploadedFile $file)
-    {
-        return new static($file);
-    }
-
-    /**
-     * Set the file to be uploaded.
+     * Set the filesystem manager.
      *
-     * @param UploadedFile $file
-     * @return MediaUploader
+     * @param FilesystemManager $filesystemManager
+     * @return void
      */
-    public function setFile(UploadedFile $file)
-    {
-        $this->file = $file;
-
-        $fileName = $file->getClientOriginalName();
-        $name = pathinfo($fileName, PATHINFO_FILENAME);
-
-        $this->setName($name);
-        $this->setFileName($fileName);
-
-        return $this;
+    protected function setFilesystemManager(
+        FilesystemManager $filesystemManager
+    ) {
+        $this->filesystemManager = $filesystemManager;
     }
 
     /**
-     * Set the name of the media item.
+     * Set the config.
      *
-     * @param string $name
-     * @return MediaUploader
+     * @param array $config
+     * @return void
      */
-    public function setName(string $name)
+    protected function setConfig(array $config)
     {
-        $this->name = $name;
+        /*
+         * $config = [
+         *     'model' => Media::class,
+         *     'disk' => 'public',
+         * ];
+         */
 
-        return $this;
+        $this->config = $config;
     }
 
     /**
-     * @param string $name
-     * @return MediaUploader
-     */
-    public function useName(string $name)
-    {
-        return $this->setName($name);
-    }
-
-    /**
-     * Set the name of the file.
+     * Set the upload options.
      *
-     * @param string $fileName
-     * @return MediaUploader
+     * @param UploadMediaOptions|null $options
+     * @return void
      */
-    public function setFileName(string $fileName)
+    protected function setOptions(?UploadMediaOptions $options)
     {
-        $this->fileName = $this->sanitiseFileName($fileName);
-
-        return $this;
+        $this->options = $options ?: new UploadMediaOptions();
     }
 
     /**
-     * @param string $fileName
-     * @return MediaUploader
-     */
-    public function useFileName(string $fileName)
-    {
-        return $this->setFileName($fileName);
-    }
-
-    /**
-     * Sanitise the file name.
+     * Upload a file to the media manager.
      *
-     * @param string $fileName
-     * @return string
-     */
-    protected function sanitiseFileName(string $fileName)
-    {
-        return str_replace(['#', '/', '\\', ' '], '-', $fileName);
-    }
-
-    /**
-     * Specify the disk where the file will be stored.
-     *
-     * @param string $disk
-     * @return MediaUploader
-     */
-    public function setDisk(string $disk)
-    {
-        $this->disk = $disk;
-
-        return $this;
-    }
-
-    /**
-     * @param string $disk
-     * @return MediaUploader
-     */
-    public function toDisk(string $disk)
-    {
-        return $this->setDisk($disk);
-    }
-
-    /**
-     * Set any custom attributes to be saved to the media item.
-     *
-     * @param array $attributes
-     * @return MediaUploader
-     */
-    public function withAttributes(array $attributes)
-    {
-        $this->attributes = $attributes;
-
-        return $this;
-    }
-
-    /**
-     * @param array $properties
-     * @return MediaUploader
-     */
-    public function withProperties(array $properties)
-    {
-        return $this->withAttributes($properties);
-    }
-
-    /**
-     * Upload the file to the specified disk.
-     *
+     * @param string|UploadedFile|File $file
+     * @param UploadMediaOptions|null $options
      * @return mixed
+     *
+     * @throws
      */
-    public function upload()
+    public function upload($file, UploadMediaOptions $options = null)
     {
-        $model = config('media.model');
+        [$filePath, $fileName] = $this->parseFileInfo($file);
 
-        $media = new $model();
+        $this->setOptions($options);
 
-        $media->name = $this->name;
-        $media->file_name = $this->fileName;
-        $media->disk = $this->disk ?: config('media.disk');
-        $media->mime_type = $this->file->getMimeType();
-        $media->size = $this->file->getSize();
+        $disk = $this->getDisk();
+        $filesystem = $this->getFilesystem($disk);
+        $visibility = $this->getVisibility();
 
-        $media->forceFill($this->attributes);
+        $media = $this->makeModel();
+
+        $media->fill($this->options->customAttributes);
+
+        $media->name = $this->getMediaName($fileName);
+        $media->file_name = $this->getFileName($fileName);
+        $media->disk = $disk;
+        $media->mime_type = mime_content_type($filePath);
+        $media->size = filesize($filePath);
 
         $media->save();
 
-        $media->filesystem()->putFileAs(
-            $media->getDirectory(),
-            $this->file,
-            $this->fileName
+        $fileHandle = fopen($filePath, 'r');
+
+        $filesystem->writeStream(
+            $media->getFilePath(),
+            $fileHandle,
+            $visibility
+                ? ['visibility' => $visibility]
+                : []
         );
 
-        return $media->fresh();
+        fclose($fileHandle);
+
+        if (! $this->options->preserveOriginalFile) {
+            unlink($filePath);
+        }
+
+        return $media;
+    }
+
+    protected function parseFileInfo($file)
+    {
+        if (is_string($file)) {
+            return [
+                $file,
+                basename($file),
+            ];
+        }
+
+        if ($file instanceof UploadedFile) {
+            return [
+                $file->getPathname(),
+                $file->getClientOriginalName(),
+            ];
+        }
+
+        if ($file instanceof File) {
+            return [
+                $file->getPathname(),
+                $file->getFilename(),
+            ];
+        }
+
+        throw new Exception('Invalid file type.');
+    }
+
+    protected function makeModel(): Media
+    {
+        $model = new $this->config['model'];
+
+        if (! $model instanceof Media) {
+            throw new Exception('Invalid media model.');
+        }
+
+        return $model;
+    }
+
+    protected function getDisk()
+    {
+        return $this->options->disk ?: $this->config['disk'];
+    }
+
+    protected function getFilesystem(string $disk)
+    {
+        try {
+            return $this->filesystemManager->disk($disk);
+        } catch (Exception $exception) {
+            throw new Exception('Invalid disk.');
+        }
+    }
+
+    protected function getVisibility()
+    {
+        if (! $visibility = $this->options->visibility) {
+            return null;
+        }
+
+        if (! in_array($visibility, [
+            AdapterInterface::VISIBILITY_PUBLIC,
+            AdapterInterface::VISIBILITY_PRIVATE,
+        ])) {
+            throw new Exception('Invalid visibility.');
+        }
+
+        return $visibility;
+    }
+
+    protected function getMediaName(string $fileName)
+    {
+        if ($mediaName = $this->options->mediaName) {
+            return $mediaName;
+        }
+
+        return pathinfo(
+            $this->options->fileName ?: $fileName,
+            PATHINFO_FILENAME
+        );
+    }
+
+    protected function getFileName(string $fileName)
+    {
+        return $this->sanitiseFileName(
+            $this->options->fileName ?: $fileName,
+            $this->options->fileNameSanitiser
+        );
+    }
+
+    protected function sanitiseFileName(string $fileName, ?callable $sanitiser)
+    {
+        if (is_callable($sanitiser)) {
+            return $sanitiser($fileName);
+        }
+
+        return FileNameSanitiser::sanitise($fileName);
     }
 }
