@@ -25,11 +25,18 @@ class UploadOptions
     /** @var array */
     public $customAttributes = [];
 
+    /**
+     * @return self
+     */
     public static function create()
     {
         return new self();
     }
 
+    /**
+     * @param string $mediaName
+     * @return self
+     */
     public function setMediaName(string $mediaName)
     {
         $this->mediaName = $mediaName;
@@ -37,6 +44,10 @@ class UploadOptions
         return $this;
     }
 
+    /**
+     * @param string $fileName
+     * @return self
+     */
     public function setFileName(string $fileName)
     {
         $this->fileName = $fileName;
@@ -44,6 +55,10 @@ class UploadOptions
         return $this;
     }
 
+    /**
+     * @param callable $sanitiser
+     * @return self
+     */
     public function setFileNameSanitiser(callable $sanitiser)
     {
         $this->fileNameSanitiser = $sanitiser;
@@ -51,6 +66,10 @@ class UploadOptions
         return $this;
     }
 
+    /**
+     * @param string $disk
+     * @return self
+     */
     public function setDisk(string $disk)
     {
         $this->disk = $disk;
@@ -58,6 +77,10 @@ class UploadOptions
         return $this;
     }
 
+    /**
+     * @param string $visibility
+     * @return self
+     */
     public function setVisibility(string $visibility)
     {
         $this->visibility = $visibility;
@@ -65,6 +88,9 @@ class UploadOptions
         return $this;
     }
 
+    /**
+     * @return self
+     */
     public function preserveOriginalFile()
     {
         $this->preserveOriginalFile = true;
@@ -72,6 +98,10 @@ class UploadOptions
         return $this;
     }
 
+    /**
+     * @param array $customAttributes
+     * @return self
+     */
     public function setCustomAttributes(array $customAttributes)
     {
         $this->customAttributes = $customAttributes;

@@ -3,6 +3,7 @@
 namespace Optix\Media;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use League\Flysystem\AdapterInterface;
 use Optix\Media\Models\Media;
@@ -23,8 +24,6 @@ class MediaUploader
     protected $options;
 
     /**
-     * Create a new media uploader instance.
-     *
      * @param FilesystemManager $filesystemManager
      * @param array $config
      * @return void
@@ -38,8 +37,6 @@ class MediaUploader
     }
 
     /**
-     * Set the filesystem manager.
-     *
      * @param FilesystemManager $filesystemManager
      * @return void
      */
@@ -50,8 +47,6 @@ class MediaUploader
     }
 
     /**
-     * Set the config.
-     *
      * @param array $config
      * @return void
      */
@@ -68,8 +63,6 @@ class MediaUploader
     }
 
     /**
-     * Set the upload options.
-     *
      * @param UploadOptions|null $options
      * @return void
      */
@@ -79,13 +72,11 @@ class MediaUploader
     }
 
     /**
-     * Upload a file to the media manager.
-     *
      * @param string|UploadedFile|File $file
      * @param UploadOptions|null $options
      * @return Media
      *
-     * @throws
+     * @throws Exception
      */
     public function upload($file, UploadOptions $options = null)
     {
@@ -128,6 +119,12 @@ class MediaUploader
         return $media;
     }
 
+    /**
+     * @param string|UploadedFile|File $file
+     * @return string[]
+     *
+     * @throws Exception
+     */
     protected function parseFileInfo($file)
     {
         if (is_string($file)) {
@@ -154,7 +151,12 @@ class MediaUploader
         throw new Exception('Invalid file type.');
     }
 
-    protected function makeModel(): Media
+    /**
+     * @return Media
+     *
+     * @throws Exception
+     */
+    protected function makeModel()
     {
         $model = new $this->config['model'];
 
@@ -165,11 +167,20 @@ class MediaUploader
         return $model;
     }
 
+    /**
+     * @return string
+     */
     protected function getDisk()
     {
         return $this->options->disk ?: $this->config['disk'];
     }
 
+    /**
+     * @param string $disk
+     * @return Filesystem
+     *
+     * @throws Exception
+     */
     protected function getFilesystem(string $disk)
     {
         try {
@@ -179,6 +190,11 @@ class MediaUploader
         }
     }
 
+    /**
+     * @return string|void
+     *
+     * @throws Exception
+     */
     protected function getVisibility()
     {
         if (! $visibility = $this->options->visibility) {
@@ -195,6 +211,10 @@ class MediaUploader
         return $visibility;
     }
 
+    /**
+     * @param string $fileName
+     * @return string
+     */
     protected function getMediaName(string $fileName)
     {
         if ($mediaName = $this->options->mediaName) {
@@ -207,6 +227,10 @@ class MediaUploader
         );
     }
 
+    /**
+     * @param string $fileName
+     * @return string
+     */
     protected function getFileName(string $fileName)
     {
         return $this->sanitiseFileName(
@@ -215,6 +239,11 @@ class MediaUploader
         );
     }
 
+    /**
+     * @param string $fileName
+     * @param callable|null $sanitiser
+     * @return string
+     */
     protected function sanitiseFileName(string $fileName, ?callable $sanitiser)
     {
         if (is_callable($sanitiser)) {
