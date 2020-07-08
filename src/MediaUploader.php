@@ -182,7 +182,7 @@ class MediaUploader
     protected function getVisibility()
     {
         if (! $visibility = $this->options->visibility) {
-            return null;
+            return;
         }
 
         if (! in_array($visibility, [

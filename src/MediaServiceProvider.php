@@ -2,6 +2,8 @@
 
 namespace Optix\Media;
 
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Support\ServiceProvider;
 
 class MediaServiceProvider extends ServiceProvider
@@ -16,6 +18,13 @@ class MediaServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__.'/../config/media.php', 'media'
         );
+
+        $this->app->bind(MediaUploader::class, function (Container $app) {
+            return new MediaUploader(
+                $app->make(FilesystemManager::class),
+                $app->make('config')->get('media')
+            );
+        });
 
         $this->app->singleton(ConversionRegistry::class);
     }
