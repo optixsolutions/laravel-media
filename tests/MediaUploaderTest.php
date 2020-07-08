@@ -7,7 +7,6 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Optix\Media\MediaUploader;
 use Optix\Media\Models\Media;
 use Optix\Media\Options\UploadOptions;
@@ -17,41 +16,27 @@ use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 class MediaUploaderTest extends TestCase
 {
     const DEFAULT_DISK = 'default';
-    const RESOURCE_DIRECTORY = __DIR__.'/resources';
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        // Copy test resources to temporary directory...
-        File::copyDirectory(
-            self::RESOURCE_DIRECTORY, self::RESOURCE_DIRECTORY.'_live'
-        );
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-
-        // Delete temporary test resources...
-        File::deleteDirectory(self::RESOURCE_DIRECTORY.'_live');
-    }
 
     /** @test */
     public function it_can_upload_a_file_to_the_default_disk()
     {
         $file = UploadedFile::fake()->image('file-name.jpg');
 
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $media = $mediaUploader->upload($file);
 
         $this->assertInstanceOf(Media::class, $media);
         $this->assertEquals(self::DEFAULT_DISK, $media->disk);
-
-        $filesystem = Storage::disk(self::DEFAULT_DISK);
 
         $this->assertTrue(
             $filesystem->exists($media->getPath())
@@ -65,11 +50,16 @@ class MediaUploaderTest extends TestCase
 
         $customDisk = 'custom';
 
-        $filesystemManager = $this->mockFilesystemManager($customDisk);
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader(
-            $filesystemManager, $customDisk
-        );
+        $filesystem = $this->mockFilesystem($customDisk, $filesystemManager);
+
+        $filesystemManager->set($customDisk, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => $customDisk,
+            'model' => Media::class,
+        ]);
 
         $options = UploadOptions::create()->setDisk($customDisk);
 
@@ -77,8 +67,6 @@ class MediaUploaderTest extends TestCase
 
         $this->assertInstanceOf(Media::class, $media);
         $this->assertEquals($customDisk, $media->disk);
-
-        $filesystem = Storage::disk($customDisk);
 
         $this->assertTrue(
             $filesystem->exists($media->getPath())
@@ -88,15 +76,20 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_upload_a_file_from_a_path()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $media = $mediaUploader->upload(
-            $file = $this->getResourcePath('test_image.png')
+            $file = $this->getTestResourcePath('test_image.png')
         );
-
-        $filesystem = Storage::disk(self::DEFAULT_DISK);
 
         // The uploaded file should exist...
         $this->assertTrue(
@@ -112,17 +105,22 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_upload_a_symfony_file_object()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $file = new SymfonyFile(
-            $this->getResourcePath('test_image.png')
+            $this->getTestResourcePath('test_image.png')
         );
 
         $media = $mediaUploader->upload($file);
-
-        $filesystem = Storage::disk(self::DEFAULT_DISK);
 
         // The uploaded file should exist...
         $this->assertTrue(
@@ -138,17 +136,24 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_preserve_the_original_file_uploaded_by_symfony_file_object()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
 
-        $file = new SymfonyFile(self::RESOURCE_DIRECTORY.'/test_image.png');
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
+
+        $file = new SymfonyFile(
+            $this->getTestResourcePath('test_image.png')
+        );
 
         $options = UploadOptions::create()->preserveOriginalFile();
 
         $media = $mediaUploader->upload($file, $options);
-
-        $filesystem = Storage::disk(self::DEFAULT_DISK);
 
         // The uploaded file should exist...
         $this->assertTrue(
@@ -164,17 +169,22 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_preserve_the_original_file_uploaded_by_path()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $options = UploadOptions::create()->preserveOriginalFile();
 
         $media = $mediaUploader->upload(
-            $file = $this->getResourcePath('test_image.png'), $options
+            $file = $this->getTestResourcePath('test_image.png'), $options
         );
-
-        $filesystem = Storage::disk(self::DEFAULT_DISK);
 
         // The uploaded file should exist...
         $this->assertTrue(
@@ -190,9 +200,16 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_uploads_media_publicly_by_default()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $file = UploadedFile::fake()->image('file-name.jpg');
 
@@ -200,10 +217,9 @@ class MediaUploaderTest extends TestCase
 
         $media = $mediaUploader->upload($file, $options);
 
-        $destinationDisk = $filesystemManager->disk(self::DEFAULT_DISK)
-            ->getVisibility(
-                $media->getPath()
-            );
+        $destinationDisk = $filesystem->getVisibility(
+            $media->getPath()
+        );
 
         $this->assertEquals($destinationDisk, 'public');
     }
@@ -211,21 +227,26 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_upload_media_publicly()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $file = UploadedFile::fake()->image('file-name.jpg');
 
-        $options = UploadOptions::create()
-            ->setVisibility($visibility = 'public');
+        $options = UploadOptions::create()->setVisibility($visibility = 'public');
 
         $media = $mediaUploader->upload($file, $options);
 
-        $destinationDisk = $filesystemManager->disk(self::DEFAULT_DISK)
-            ->getVisibility(
-                $media->getPath()
-            );
+        $destinationDisk = $filesystem->getVisibility(
+            $media->getPath()
+        );
 
         $this->assertEquals($destinationDisk, $visibility);
     }
@@ -233,21 +254,26 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_upload_media_privately()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $file = UploadedFile::fake()->image('file-name.jpg');
 
-        $options = UploadOptions::create()
-            ->setVisibility($visibility = 'private');
+        $options = UploadOptions::create()->setVisibility($visibility = 'private');
 
         $media = $mediaUploader->upload($file, $options);
 
-        $destinationDisk = $filesystemManager->disk(self::DEFAULT_DISK)
-            ->getVisibility(
-                $media->getPath()
-            );
+        $destinationDisk = $filesystem->getVisibility(
+            $media->getPath()
+        );
 
         $this->assertEquals($destinationDisk, $visibility);
     }
@@ -255,14 +281,21 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_cannot_upload_a_non_existent_file()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $this->expectException(ErrorException::class);
 
         $mediaUploader->upload(
-            $this->getResourcePath('non_existent_image.png')
+            $this->getTestResourcePath('non_existent_image.png')
         );
     }
 
@@ -271,9 +304,16 @@ class MediaUploaderTest extends TestCase
     {
         $file = UploadedFile::fake()->image('file-name.jpg');
 
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $options = UploadOptions::create()->setMediaName($newName = 'New name');
 
@@ -287,12 +327,18 @@ class MediaUploaderTest extends TestCase
     {
         $file = UploadedFile::fake()->image('file-name.jpg');
 
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
 
-        $options = UploadOptions::create()
-            ->setFileName($newFileName = 'new-file-name.jpg');
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
+
+        $options = UploadOptions::create()->setFileName($newFileName = 'new-file-name.jpg');
 
         $media = $mediaUploader->upload($file, $options);
 
@@ -304,9 +350,16 @@ class MediaUploaderTest extends TestCase
     {
         $file = UploadedFile::fake()->image('bad file name#023.jpg');
 
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $options = UploadOptions::create()->setDisk(self::DEFAULT_DISK);
 
@@ -320,9 +373,16 @@ class MediaUploaderTest extends TestCase
     {
         $file = UploadedFile::fake()->image('file@name.jpg');
 
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader($filesystemManager);
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => Media::class,
+        ]);
 
         $options = UploadOptions::create()
             ->setFileNameSanitiser(function ($name) {
@@ -337,11 +397,16 @@ class MediaUploaderTest extends TestCase
     /** @test */
     public function it_can_save_custom_attributes_to_the_media_model()
     {
-        $filesystemManager = $this->mockFilesystemManager();
+        $filesystemManager = $this->app->make(FilesystemManager::class);
 
-        $mediaUploader = $this->mockMediaUploader(
-            $filesystemManager, self::DEFAULT_DISK, CustomMedia::class
-        );
+        $filesystem = $this->mockFilesystem(self::DEFAULT_DISK, $filesystemManager);
+
+        $filesystemManager->set(self::DEFAULT_DISK, $filesystem);
+
+        $mediaUploader = new MediaUploader($filesystemManager, [
+            'disk' => self::DEFAULT_DISK,
+            'model' => CustomMedia::class,
+        ]);
 
         $file = UploadedFile::fake()->image('image.jpg');
 
@@ -356,38 +421,14 @@ class MediaUploaderTest extends TestCase
         $this->assertEquals('Custom attribute', $media->custom_attribute);
     }
 
-    private function getResourcePath(string $fileName)
+    private function mockFilesystem(string $disk, FilesystemManager $filesystemManager)
     {
-        return self::RESOURCE_DIRECTORY."_live/{$fileName}";
-    }
-
-    private function mockMediaUploader(
-        FilesystemManager $filesystemManager,
-        $disk = self::DEFAULT_DISK,
-        $model = Media::class
-    ) {
-        $config = [
-            'disk' => $disk,
-            'model' => $model,
-        ];
-
-        return new MediaUploader($filesystemManager, $config);
-    }
-
-    private function mockFilesystemManager($disk = self::DEFAULT_DISK)
-    {
-        $filesystemManager = app(FilesystemManager::class);
-
         (new Filesystem)->cleanDirectory(
             $root = storage_path('framework/testing/disks/'.$disk)
         );
 
-        $filesystem = $filesystemManager->createLocalDriver([
+        return $filesystemManager->createLocalDriver([
             'root' => $root,
         ]);
-
-        $filesystemManager->set($disk, $filesystem);
-
-        return $filesystemManager;
     }
 }
