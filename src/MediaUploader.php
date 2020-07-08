@@ -112,7 +112,7 @@ class MediaUploader
         $fileHandle = fopen($filePath, 'r');
 
         $filesystem->writeStream(
-            $media->getFilePath(),
+            $media->getPath(),
             $fileHandle,
             $visibility
                 ? ['visibility' => $visibility]
