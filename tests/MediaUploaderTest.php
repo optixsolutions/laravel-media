@@ -2,6 +2,7 @@
 
 namespace Optix\Media\Tests;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -122,15 +123,11 @@ class MediaUploaderTest extends TestCase
         $disk = self::DEFAULT_DISK,
         $model = Media::class
     ) {
-        $filesystemManager = Mockery::mock(FilesystemManager::class);
+        $filesystemManager = app(FilesystemManager::class);
 
-        $filesystem = Storage::fake($disk);
+        $filesystem = $this->mockFilesystem($disk, $filesystemManager);
 
-        $filesystemManager
-            ->shouldReceive('disk')
-            ->with($disk)
-            ->once()
-            ->andReturn($filesystem);
+        $filesystemManager->set($disk, $filesystem);
 
         $config = [
             'model' => $model,
@@ -138,5 +135,18 @@ class MediaUploaderTest extends TestCase
         ];
 
         return new MediaUploader($filesystemManager, $config);
+    }
+
+    private function mockFilesystem(
+        string $disk,
+        FilesystemManager $filesystemManager
+    ) {
+        (new Filesystem)->cleanDirectory(
+            $root = storage_path('framework/testing/disks/'.$disk)
+        );
+
+        return $filesystemManager->createLocalDriver([
+            'root' => $root,
+        ]);
     }
 }
