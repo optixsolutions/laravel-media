@@ -13,8 +13,9 @@
         "intervention/image": "^2.5"
     },
     "require-dev": {
-        "orchestra/testbench": "~3.8.0|^4.0|^5.0",
-        "mockery/mockery": "^1.2.3"
+        "orchestra/testbench": "~3.8.0|^4.0|^5.0|^6.0",
+        "mockery/mockery": "^1.2.3",
+        "laravel/legacy-factories": "^1.0"
     },
     "autoload": {
         "psr-4": {
