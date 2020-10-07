@@ -2,120 +2,140 @@
 
 namespace Optix\Media\Models;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Optix\Media\Concerns\ChangesFileExtension;
+use Optix\Media\Facades\Converter;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $file_name
+ * @property string $extension
+ * @property string $disk
+ * @property string $mime_type
+ * @property int $size
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ */
 class Media extends Model
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
     protected $table = 'media';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'name', 'file_name', 'disk', 'mime_type', 'size',
     ];
 
-    /**
-     * Get the file extension.
-     *
-     * @return string
-     */
-    public function getExtensionAttribute()
+    public function getName()
     {
-        return pathinfo($this->file_name, PATHINFO_EXTENSION);
+        return $this->name;
     }
 
-    /**
-     * Get the file type.
-     *
-     * @return string|null
-     */
-    public function getTypeAttribute()
+    public function getFileName(string $conversionName = null)
     {
-        return Str::before($this->mime_type, '/') ?? null;
-    }
-
-    /**
-     * Determine if the file is of the specified type.
-     *
-     * @param string $type
-     * @return bool
-     */
-    public function isOfType(string $type)
-    {
-        return $this->type === $type;
-    }
-
-    /**
-     * Get the url to the file.
-     *
-     * @param string $conversion
-     * @return mixed
-     */
-    public function getUrl(string $conversion = '')
-    {
-        return $this->filesystem()->url(
-            $this->getPath($conversion)
-        );
-    }
-
-    /**
-     * Get the full path to the file.
-     *
-     * @param string $conversion
-     * @return mixed
-     */
-    public function getFullPath(string $conversion = '')
-    {
-        return $this->filesystem()->path(
-            $this->getPath($conversion)
-        );
-    }
-
-    /**
-     * Get the path to the file on disk.
-     *
-     * @param string $conversion
-     * @return string
-     */
-    public function getPath(string $conversion = '')
-    {
-        $directory = $this->getDirectory();
-
-        if ($conversion) {
-            $directory .= '/conversions/'.$conversion;
+        if ($conversionName) {
+            return $this->getConversionFileName($conversionName);
         }
 
-        return $directory.'/'.$this->file_name;
+        return $this->file_name;
     }
 
-    /**
-     * Get the directory for files on disk.
-     *
-     * @return mixed
-     */
-    public function getDirectory()
+    public function getConversionFileName(string $conversionName)
     {
+        $extension = $this->getConversionExtension($conversionName);
+
+        return pathinfo($this->getFileName(), PATHINFO_FILENAME).'.'.$extension;
+    }
+
+    public function getExtension(string $conversionName = null)
+    {
+        if ($conversionName) {
+            return $this->getConversionExtension($conversionName);
+        }
+
+        return pathinfo($this->getFileName(), PATHINFO_EXTENSION);
+    }
+
+    public function getConversionExtension(string $conversionName)
+    {
+        $converter = Converter::get($conversionName);
+
+        if ($converter instanceof ChangesFileExtension) {
+            return $converter->getExtension();
+        }
+
+        return $this->getExtension();
+    }
+
+    public function getExtensionAttribute()
+    {
+        return $this->getExtension();
+    }
+
+    public function getDisk()
+    {
+        return $this->disk;
+    }
+
+    public function getMimeType()
+    {
+        return $this->mime_type;
+    }
+
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    public function getUrl(string $conversionName = null)
+    {
+        if ($conversionName) {
+            return $this->getConversionUrl($conversionName);
+        }
+
+        return $this->filesystem()->url($this->getPath());
+    }
+
+    public function getConversionUrl(string $conversionName)
+    {
+        return $this->filesystem()->url(
+            $this->getConversionPath($conversionName)
+        );
+    }
+
+    public function getPath(string $conversionName = null)
+    {
+        if ($conversionName) {
+            return $this->getConversionPath($conversionName);
+        }
+
+        return $this->getDirectory().DIRECTORY_SEPARATOR.$this->getFileName();
+    }
+
+    public function getConversionPath(string $conversionName)
+    {
+        return $this->getConversionDirectory($conversionName)
+            .DIRECTORY_SEPARATOR
+            .$this->getConversionFileName($conversionName);
+    }
+
+    public function getDirectory(string $conversionName = null)
+    {
+        if ($conversionName) {
+            return $this->getConversionDirectory($conversionName);
+        }
+
         return $this->getKey();
     }
 
-    /**
-     * Get the filesystem where the associated file is stored.
-     *
-     * @return Filesystem
-     */
+    public function getConversionDirectory(string $conversionName)
+    {
+        return $this->getDirectory().DIRECTORY_SEPARATOR.$conversionName;
+    }
+
     public function filesystem()
     {
-        return Storage::disk($this->disk);
+        return Storage::disk($this->getDisk());
     }
 }
