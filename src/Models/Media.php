@@ -3,6 +3,7 @@
 namespace Optix\Media\Models;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Optix\Media\Concerns\ChangesFileExtension;
@@ -21,17 +22,34 @@ use Optix\Media\Facades\Converter;
  */
 class Media extends Model
 {
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'media';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'name', 'file_name', 'disk', 'mime_type', 'size',
     ];
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @param string|null $conversionName
+     * @return string
+     */
     public function getFileName(string $conversionName = null)
     {
         if ($conversionName) {
@@ -41,6 +59,10 @@ class Media extends Model
         return $this->file_name;
     }
 
+    /**
+     * @param string $conversionName
+     * @return string
+     */
     public function getConversionFileName(string $conversionName)
     {
         $extension = $this->getConversionExtension($conversionName);
@@ -48,6 +70,10 @@ class Media extends Model
         return pathinfo($this->getFileName(), PATHINFO_FILENAME).'.'.$extension;
     }
 
+    /**
+     * @param string|null $conversionName
+     * @return string
+     */
     public function getExtension(string $conversionName = null)
     {
         if ($conversionName) {
@@ -57,6 +83,10 @@ class Media extends Model
         return pathinfo($this->getFileName(), PATHINFO_EXTENSION);
     }
 
+    /**
+     * @param string $conversionName
+     * @return string
+     */
     public function getConversionExtension(string $conversionName)
     {
         $converter = Converter::get($conversionName);
@@ -68,42 +98,40 @@ class Media extends Model
         return $this->getExtension();
     }
 
+    /**
+     * @return string
+     */
     public function getExtensionAttribute()
     {
         return $this->getExtension();
     }
 
-    public function getDisk()
-    {
-        return $this->disk;
-    }
-
-    public function getMimeType()
-    {
-        return $this->mime_type;
-    }
-
-    public function getSize()
-    {
-        return $this->size;
-    }
-
-    public function getUrl(string $conversionName = null)
+    /**
+     * @param string|null $conversionName
+     * @return string
+     */
+    public function getDirectory(string $conversionName = null)
     {
         if ($conversionName) {
-            return $this->getConversionUrl($conversionName);
+            return $this->getConversionDirectory($conversionName);
         }
 
-        return $this->filesystem()->url($this->getPath());
+        return (string) $this->getKey();
     }
 
-    public function getConversionUrl(string $conversionName)
+    /**
+     * @param string $conversionName
+     * @return string
+     */
+    public function getConversionDirectory(string $conversionName)
     {
-        return $this->filesystem()->url(
-            $this->getConversionPath($conversionName)
-        );
+        return $this->getDirectory().DIRECTORY_SEPARATOR.$conversionName;
     }
 
+    /**
+     * @param string|null $conversionName
+     * @return string
+     */
     public function getPath(string $conversionName = null)
     {
         if ($conversionName) {
@@ -113,6 +141,10 @@ class Media extends Model
         return $this->getDirectory().DIRECTORY_SEPARATOR.$this->getFileName();
     }
 
+    /**
+     * @param string $conversionName
+     * @return string
+     */
     public function getConversionPath(string $conversionName)
     {
         return $this->getConversionDirectory($conversionName)
@@ -120,20 +152,57 @@ class Media extends Model
             .$this->getConversionFileName($conversionName);
     }
 
-    public function getDirectory(string $conversionName = null)
+    /**
+     * @param string|null $conversionName
+     * @return string
+     */
+    public function getUrl(string $conversionName = null)
     {
         if ($conversionName) {
-            return $this->getConversionDirectory($conversionName);
+            return $this->getConversionUrl($conversionName);
         }
 
-        return $this->getKey();
+        return $this->filesystem()->url($this->getPath());
     }
 
-    public function getConversionDirectory(string $conversionName)
+    /**
+     * @param string $conversionName
+     * @return string
+     */
+    public function getConversionUrl(string $conversionName)
     {
-        return $this->getDirectory().DIRECTORY_SEPARATOR.$conversionName;
+        return $this->filesystem()->url(
+            $this->getConversionPath($conversionName)
+        );
     }
 
+    /**
+     * @return string
+     */
+    public function getDisk()
+    {
+        return $this->disk;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mime_type;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return Filesystem
+     */
     public function filesystem()
     {
         return Storage::disk($this->getDisk());
