@@ -1,8 +1,6 @@
 <?php
 
-namespace Optix\Media;
-
-use Optix\Media\Models\Media;
+namespace Optix\Media\Contracts;
 
 interface Converter
 {

@@ -3,6 +3,7 @@
 namespace Optix\Media;
 
 use Exception;
+use Optix\Media\Contracts\Converter;
 
 class ConverterRegistry
 {

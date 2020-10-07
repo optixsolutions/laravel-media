@@ -2,7 +2,7 @@
 
 namespace Optix\Media\Facades;
 
-use Optix\Media\Converter as ConverterContract;
+use Optix\Media\Contracts\Converter as ConverterContract;
 use Illuminate\Support\Facades\Facade;
 use Optix\Media\ConverterRegistry;
 
