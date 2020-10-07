@@ -11,6 +11,13 @@ trait HasMedia
 {
     /** @var MediaGroup[] */
     protected $mediaGroups = [];
+    
+    protected static function bootHasMedia()
+    {
+        self::deleting(function ($model) {
+            $model->media()->detach();
+        });
+    }
 
     /**
      * Get the "media" relationship.
