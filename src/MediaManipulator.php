@@ -3,10 +3,8 @@
 namespace Optix\Media;
 
 use Exception;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Support\Str;
-use Optix\Media\Concerns\ChangesFileExtension;
 use Optix\Media\Models\Media;
 
 class MediaManipulator
@@ -40,9 +38,9 @@ class MediaManipulator
      */
     public function convert(Media $media, array $converterNames, bool $onlyIfMissing = true)
     {
-        $converters = [];
-
         $disk = $this->filesystemManager->disk($media->getDisk());
+
+        $converters = [];
 
         foreach ($converterNames as $name) {
             $converter = $this->converterRegistry->get($name);
@@ -70,28 +68,27 @@ class MediaManipulator
 
         $inputFilePath = $this->createTemporaryFilePath($media->getExtension());
 
-        // Copy the source file to the input file...
         if (! $inputFileHandle = fopen($inputFilePath, 'w')) {
             fclose($sourceFileHandle);
 
             throw new Exception('Failed to open handle to the input file.');
         }
 
+        // Copy the source file to the input file...
         stream_copy_to_stream($sourceFileHandle, $inputFileHandle);
 
         fclose($sourceFileHandle);
         fclose($inputFileHandle);
 
-        // Perform the conversions...
         foreach ($converters as $name => $converter) {
-            $extension = $converter instanceof ChangesFileExtension
-                ? $converter->getExtension()
-                : $media->getExtension();
-
-            $outputFilePath = $this->createTemporaryFilePath($extension);
-
             try {
-                $converter->convert($inputFilePath, $outputFilePath);
+                if (! $extension = $converter->getOutputExtension($media)) {
+                    $extension = $media->getExtension();
+                }
+
+                $outputFilePath = $this->createTemporaryFilePath($extension);
+
+                $converter->convert($media, $inputFilePath, $outputFilePath);
 
                 if (! file_exists($outputFilePath)) {
                     throw new Exception('Failed to read the converted file.');
@@ -102,8 +99,7 @@ class MediaManipulator
                 }
 
                 try {
-                    // Copy the contents of the output file to
-                    // the conversion path on the media disk...
+                    // Persist the converted file...
                     $disk->putStream(
                         $media->getConversionPath($name),
                         $outputFileHandle
@@ -123,16 +119,26 @@ class MediaManipulator
         $this->deleteFileIfExists($inputFilePath);
     }
 
-    protected function createTemporaryFilePath($extension)
+    /**
+     * @param string $extension
+     * @return string
+     */
+    protected function createTemporaryFilePath(string $extension)
     {
-        $fileName = Str::uuid()->toString().'.'.$extension;
+        $name = Str::uuid()->toString();
+
+        $fileName = $name.'.'.$extension;
 
         return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
             .DIRECTORY_SEPARATOR
             .$fileName;
     }
 
-    protected function deleteFileIfExists($filePath)
+    /**
+     * @param string $filePath
+     * @return bool
+     */
+    protected function deleteFileIfExists(string $filePath)
     {
         if (! file_exists($filePath)) {
             return true;

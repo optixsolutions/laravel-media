@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Optix\Media\Concerns\ChangesFileExtension;
 use Optix\Media\Facades\Converter;
 
 /**
@@ -91,11 +90,11 @@ class Media extends Model
     {
         $converter = Converter::get($conversionName);
 
-        if ($converter instanceof ChangesFileExtension) {
-            return $converter->getExtension();
+        if (! $extension = $converter->getOutputExtension($this)) {
+            $extension = $this->getExtension();
         }
 
-        return $this->getExtension();
+        return $extension;
     }
 
     /**
@@ -138,7 +137,10 @@ class Media extends Model
             return $this->getConversionPath($conversionName);
         }
 
-        return $this->getDirectory().DIRECTORY_SEPARATOR.$this->getFileName();
+        $directory = $this->getDirectory();
+        $fileName = $this->getFileName();
+
+        return $directory.DIRECTORY_SEPARATOR.$fileName;
     }
 
     /**
@@ -147,9 +149,10 @@ class Media extends Model
      */
     public function getConversionPath(string $conversionName)
     {
-        return $this->getConversionDirectory($conversionName)
-            .DIRECTORY_SEPARATOR
-            .$this->getConversionFileName($conversionName);
+        $directory = $this->getConversionDirectory($conversionName);
+        $fileName = $this->getConversionFileName($conversionName);
+
+        return $directory.DIRECTORY_SEPARATOR.$fileName;
     }
 
     /**
@@ -171,9 +174,9 @@ class Media extends Model
      */
     public function getConversionUrl(string $conversionName)
     {
-        return $this->filesystem()->url(
-            $this->getConversionPath($conversionName)
-        );
+        $path = $this->getConversionPath($conversionName);
+
+        return $this->filesystem()->url($path);
     }
 
     /**
