@@ -39,10 +39,7 @@ class MediaManipulator
         $filesystem = $this->getFilesystem($media->getDisk());
 
         $converters = $this->getConverters(
-            $media,
-            $filesystem,
-            $conversionNames,
-            $onlyIfMissing
+            $media, $filesystem, $conversionNames, $onlyIfMissing
         );
 
         if (empty($converters)) {
@@ -52,21 +49,13 @@ class MediaManipulator
         $inputFilePath = $this->generateTemporaryFilePath($media->getExtension());
 
         $this->copySourceFileToLocalDisk(
-            $filesystem,
-            $media->getPath(),
-            $inputFilePath
+            $filesystem, $media->getPath(), $inputFilePath
         );
 
         try {
-            foreach ($converters as $conversionName => $converter) {
-                $this->convertFile(
-                    $media,
-                    $filesystem,
-                    $converter,
-                    $conversionName,
-                    $inputFilePath
-                );
-            }
+            $this->performConversions(
+                $media, $filesystem, $converters, $inputFilePath
+            );
         } finally {
             $this->deleteFileIfExists($inputFilePath);
         }
@@ -86,7 +75,7 @@ class MediaManipulator
      * @param FilesystemAdapter $filesystem
      * @param array $conversionNames
      * @param bool $onlyIfMissing
-     * @return array
+     * @return Converter[]
      */
     protected function getConverters(
         Media $media,
@@ -96,20 +85,21 @@ class MediaManipulator
     ) {
         $converters = [];
 
-        foreach ($conversionNames as $name) {
-            $converter = $this->getConverter($name);
+        foreach ($conversionNames as $conversionName) {
+            $converter = $this->getConverter($conversionName);
+
+            if (! $converter->canConvertMedia($media)) {
+                continue;
+            }
 
             if (
-                ! $converter->canConvertMedia($media)
-                || (
-                    $onlyIfMissing
-                    && $filesystem->exists($media->getConversionPath($name))
-                )
+                $onlyIfMissing
+                && $filesystem->exists($media->getConversionPath($conversionName))
             ) {
                 continue;
             }
 
-            $converters[$name] = $converter;
+            $converters[$conversionName] = $converter;
         }
 
         return $converters;
@@ -145,12 +135,12 @@ class MediaManipulator
         string $localFilePath
     ) {
         if (! $sourceFileHandle = $filesystem->readStream($sourceFilePath)) {
-            throw new Exception('Failed to open handle to the source file.');
+            throw new Exception('Failed to open file handle.');
         }
 
         try {
             if (! $localFileHandle = fopen($localFilePath, 'w')) {
-                throw new Exception('Failed to open handle to the input file.');
+                throw new Exception('Failed to open file handle.');
             }
 
             try {
@@ -166,37 +156,33 @@ class MediaManipulator
     /**
      * @param Media $media
      * @param FilesystemAdapter $filesystem
-     * @param Converter $converter
-     * @param string $conversionName
+     * @param Converter[] $converters
      * @param string $inputFilePath
      */
-    protected function convertFile(
+    protected function performConversions(
         Media $media,
         FilesystemAdapter $filesystem,
-        Converter $converter,
-        string $conversionName,
+        array $converters,
         string $inputFilePath
     ) {
-        try {
-            if (! $extension = $converter->getOutputExtension($media)) {
-                $extension = $media->getExtension();
-            }
-
-            $outputFilePath = $this->generateTemporaryFilePath($extension);
-
-            $converter->convert($media, $inputFilePath, $outputFilePath);
-
-            if (! file_exists($outputFilePath)) {
-                throw new Exception('Failed to read the converted file.');
-            }
-
-            $this->copyConvertedFileToMediaDisk(
-                $filesystem,
-                $outputFilePath,
-                $media->getConversionPath($conversionName)
+        foreach ($converters as $conversionName => $converter) {
+            $outputFilePath = $this->generateTemporaryFilePath(
+                $converter->getOutputExtension($media) ?: $media->getExtension()
             );
-        } finally {
-            $this->deleteFileIfExists($outputFilePath);
+
+            try {
+                $converter->convert($media, $inputFilePath, $outputFilePath);
+
+                if (! is_readable($outputFilePath)) {
+                    throw new Exception('Failed to read converted file.');
+                }
+
+                $this->copyConvertedFileToMediaDisk(
+                    $filesystem, $outputFilePath, $media->getConversionPath($conversionName)
+                );
+            } finally {
+                $this->deleteFileIfExists($outputFilePath);
+            }
         }
     }
 
@@ -211,7 +197,7 @@ class MediaManipulator
         string $destinationFilePath
     ) {
         if (! $localFileHandle = fopen($localFilePath, 'r')) {
-            throw new Exception('Failed to open handle to the output file.');
+            throw new Exception('Failed to open file handle.');
         }
 
         try {
