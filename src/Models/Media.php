@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Optix\Media\Facades\Converter;
+use Optix\Media\Facades\MediaConversion;
 
 /**
  * @property int $id
@@ -88,7 +88,7 @@ class Media extends Model
      */
     public function getConversionExtension(string $conversionName)
     {
-        $converter = Converter::get($conversionName);
+        $converter = MediaConversion::get($conversionName);
 
         if (! $extension = $converter->getOutputExtension($this)) {
             $extension = $this->getExtension();

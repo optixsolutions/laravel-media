@@ -4,17 +4,17 @@ namespace Optix\Media\Facades;
 
 use Optix\Media\Contracts\Converter as ConverterContract;
 use Illuminate\Support\Facades\Facade;
-use Optix\Media\ConverterRegistry;
+use Optix\Media\MediaConversionRegistry;
 
 /**
  * @method static void register(string $name, ConverterContract $converter)
  * @method static ConverterContract get(string $name)
  * @method static bool exists(string $name)
  */
-class Converter extends Facade
+class MediaConversion extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return ConverterRegistry::class;
+        return MediaConversionRegistry::class;
     }
 }
