@@ -1,0 +1,37 @@
+{
+    "name": "optix/media",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jack Robertson",
+            "email": "jack@optixsolutions.co.uk"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "laravel/framework": "~5.8.0|^6.0|^7.0|^8.0",
+        "intervention/image": "^2.5"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.8.6|^4.8|^5.2|^6.0",
+        "mockery/mockery": "^1.2.3",
+        "laravel/legacy-factories": "^1.0.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Optix\\Media\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Optix\\Media\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Optix\\Media\\MediaServiceProvider"
+            ]
+        }
+    }
+}
