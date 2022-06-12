@@ -11,7 +11,7 @@ An easy solution to attach files to your eloquent models, with image manipulatio
 You can install the package via composer:
 
 ```bash
-composer require optix/media
+composer require r94ever/laravel-media
 ```
 
 Once installed, you should publish the provided assets to create the necessary migration and config files.
